@@ -22,21 +22,6 @@ auto main(int argc, char *argv[]) -> int {
         return 1;
     }
 
-    auto result = og::gs2::tokenize(ifs);
-    if (result.has_value()) {
-        std::println("{:>5} |{:>5} | {:<20}| {}", "Line", "Col", "Type", "Lexeme");
-        std::println("------+------+---------------------+---------------------");
-
-        for (auto &tok : *result) {
-            std::println(
-                "{:>5} |{:>5} | {:<20}| {}",
-                tok.position.line, tok.position.column,
-                og::gs2::token_kind_string(tok.kind),
-                tok.lexeme);
-        }
-    } else {
-        std::println(std::cerr, "Error: {}", result.error().message);
-    }
-
+    og::gs2::print_tokens(ifs);
     return 0;
 }

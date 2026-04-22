@@ -104,4 +104,5 @@ namespace og::gs2 {
     using stream = std::ifstream;
 
     auto tokenize(stream &ifs) -> tokenize_result;
+    void print_tokens(stream &ifs);
 }
