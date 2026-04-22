@@ -123,6 +123,14 @@ namespace og::gs2 {
 
                 auto lexeme = oss.str();
 
+                if (lexeme == "SPC") {
+                    return (token){
+                        .kind = token_kind::op_concat,
+                        .lexeme = std::move(lexeme),
+                        .position = position,
+                    };
+                }
+
                 if (auto keyword = get_keyword_kind(lexeme); keyword) {
                     return (token){
                         .kind = token_kind::keyword,
