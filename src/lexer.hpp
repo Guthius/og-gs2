@@ -78,6 +78,8 @@ namespace og::gs2 {
         break_,
         continue_,
         null,
+        true_,
+        false_,
     };
 
     struct token {

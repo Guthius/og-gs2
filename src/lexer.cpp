@@ -61,6 +61,8 @@ namespace og::gs2 {
             make_keyword("continue", keyword_kind::continue_),
             make_keyword("null", keyword_kind::null),
             make_keyword("NULL", keyword_kind::null),
+            make_keyword("true", keyword_kind::true_),
+            make_keyword("false", keyword_kind::false_),
         };
 
         auto get_keyword_kind(string_view lexeme) -> std::optional<keyword_kind> {
