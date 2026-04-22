@@ -371,6 +371,7 @@ namespace og::gs2 {
                     if (peek() == '|') {
                         oss << advance();
                         kind = token_kind::op_or;
+                        break;
                     }
                     kind = token_kind::pipe;
                     break;
