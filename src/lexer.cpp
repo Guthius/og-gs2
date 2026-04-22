@@ -176,10 +176,6 @@ namespace og::gs2 {
                 while (!eof()) {
                     auto ch = peek();
 
-                    if (ch == '\n') {
-                        goto bad_string;
-                    }
-
                     if (ch == '"') {
                         break;
                     }
