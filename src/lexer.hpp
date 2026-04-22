@@ -58,7 +58,6 @@ namespace og::gs2 {
         op_assign_concat,   // @=
         op_increment,       // ++
         op_decrement,       // --
-        op_in,              // in
     };
 
     auto token_kind_string(token_kind kind) -> string_view;
@@ -68,14 +67,11 @@ namespace og::gs2 {
         if_,
         else_,
         while_,
+        foreach,
         for_,
-        foreach_,
         function,
         return_,
         new_,
-        this_,
-        thiso,
-        temp,
         with,
         in,
         break_,

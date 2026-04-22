@@ -1,5 +1,6 @@
 #include "lexer.hpp"
 
+#include <array>
 #include <cstdlib>
 #include <format>
 #include <iostream>
@@ -32,7 +33,42 @@ namespace og::gs2 {
             return is_alpha(ch) || is_digit(ch);
         }
 
+        struct keyword_info {
+            string_view keyword;
+            keyword_kind kind;
+        };
+
+        constexpr keyword_info make_keyword(string_view value, keyword_kind kind) {
+            return (keyword_info){
+                .keyword = value,
+                .kind = kind,
+            };
+        }
+
+        constexpr std::array keywords = {
+            make_keyword("if", keyword_kind::if_),
+            make_keyword("else", keyword_kind::else_),
+            make_keyword("while", keyword_kind::while_),
+            make_keyword("foreach", keyword_kind::foreach),
+            make_keyword("for", keyword_kind::for_),
+            make_keyword("function", keyword_kind::function),
+            make_keyword("return", keyword_kind::return_),
+            make_keyword("new", keyword_kind::new_),
+            make_keyword("with", keyword_kind::with),
+            make_keyword("in", keyword_kind::in),
+            make_keyword("break", keyword_kind::break_),
+            make_keyword("continue", keyword_kind::continue_),
+            make_keyword("null", keyword_kind::null),
+            make_keyword("NULL", keyword_kind::null),
+        };
+
         auto get_keyword_kind(string_view lexeme) -> std::optional<keyword_kind> {
+            for (const auto &info : keywords) {
+                if (info.keyword == lexeme) {
+                    return info.kind;
+                }
+            }
+
             return std::nullopt;
         }
 
@@ -335,13 +371,6 @@ namespace og::gs2 {
                     }
                     break;
 
-                case 'i': // in
-                    if (peek() == 'n') {
-                        oss << advance();
-                        kind = token_kind::op_in;
-                    }
-                    break;
-
                 default: kind = token_kind::invalid;
                 }
 
@@ -423,7 +452,6 @@ namespace og::gs2 {
         case token_kind::op_assign_concat:   return "op_assign_concat";
         case token_kind::op_increment:       return "op_increment";
         case token_kind::op_decrement:       return "op_decrement";
-        case token_kind::op_in:              return "op_in";
         default:                             return "unknown";
         }
     }
