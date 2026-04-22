@@ -1,0 +1,14 @@
+# CLangd Cache
+.cache/
+
+# CLion
+.idea/
+
+# VS Code
+.vscode/
+
+# CMake Build
+[Bb]uild/
+
+# Compile Commands
+compile_commands.json

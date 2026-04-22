@@ -1,0 +1,12 @@
+Checks: >
+  modernize-*,
+  readability-*,
+  performance-*,
+  bugprone-*,
+  clang-analyzer-*
+WarningsAsErrors: true
+CheckOptions:
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: "2"
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: "2"

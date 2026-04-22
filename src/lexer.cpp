@@ -1,0 +1,469 @@
+#include "lexer.hpp"
+
+#include <cstdlib>
+#include <format>
+#include <iostream>
+#include <sstream>
+
+namespace og::gs2 {
+    namespace {
+        constexpr auto is_whitespace(char ch) -> bool {
+            return ch == '\t' || ch == '\n' ||
+                   ch == '\v' || ch == '\f' ||
+                   ch == '\r' || ch == ' ';
+        }
+
+        constexpr auto is_alpha(char ch) -> bool {
+            return (ch >= 'A' && ch <= 'Z') ||
+                   (ch >= 'a' && ch <= 'z');
+        }
+
+        constexpr auto is_digit(char ch) -> bool {
+            return ch >= '0' && ch <= '9';
+        }
+
+        constexpr auto is_hexdigit(char ch) -> bool {
+            return (ch >= '0' && ch <= '9') ||
+                   (ch >= 'a' && ch <= 'f') ||
+                   (ch >= 'A' && ch <= 'F');
+        }
+
+        constexpr auto is_alphanumeric(char ch) -> bool {
+            return is_alpha(ch) || is_digit(ch);
+        }
+
+        auto get_keyword_kind(string_view lexeme) -> std::optional<keyword_kind> {
+            return std::nullopt;
+        }
+
+        struct lexer {
+            source_position current_position = {
+                .line = 1,
+                .column = 1,
+            };
+
+            stream &fs;
+
+            explicit lexer(stream &fs) : fs(fs) {
+            }
+
+            auto eof() -> bool { return fs.eof(); }
+
+            auto peek() -> char {
+                return eof() ? 0 : static_cast<char>(fs.peek());
+            }
+
+            auto advance() -> char {
+                if (eof()) {
+                    return 0;
+                }
+
+                char ch;
+                if (!fs.get(ch)) {
+                    return 0;
+                }
+
+                current_position.column++;
+                if (ch == '\n') {
+                    current_position.column = 1;
+                    current_position.line++;
+                }
+
+                return ch;
+            }
+
+            void skip_whitespace() {
+                while (!eof() && is_whitespace(peek())) {
+                    advance();
+                }
+            }
+
+            auto read_identifier(source_position position) -> token {
+                std::ostringstream oss;
+
+                while (!eof() && (peek() == '_' || is_alphanumeric(peek()))) {
+                    oss << advance();
+                }
+
+                auto lexeme = oss.str();
+
+                if (auto keyword = get_keyword_kind(lexeme); keyword) {
+                    return (token){
+                        .kind = token_kind::keyword,
+                        .lexeme = std::move(lexeme),
+                        .keyword = keyword.value(),
+                        .position = position,
+                    };
+                }
+
+                return (token){
+                    .kind = token_kind::identifier,
+                    .lexeme = std::move(lexeme),
+                    .position = position,
+                };
+            }
+
+            static auto string_to_double(string_view str) -> double {
+                const auto *ptr = str.data();
+                return std::strtod(ptr, nullptr);
+            }
+
+            static auto hex_string_to_double(string_view str) -> double {
+                static constexpr auto base10 = 10;
+
+                str = str.substr(2);
+                if (str.empty()) {
+                    return 0;
+                }
+
+                const auto *ptr = str.data();
+                auto value = std::strtoull(ptr, nullptr, base10);
+
+                return static_cast<double>(value);
+            }
+
+            auto read_number(source_position position) -> token {
+                std::ostringstream oss;
+
+                oss << advance();
+
+                if (eof()) {
+                    return (token){
+                        .kind = token_kind::number,
+                        .lexeme = oss.str(),
+                        .position = position,
+                    };
+                }
+
+                if (peek() == 'x') {
+                    oss << advance();
+                    while (!eof() && is_hexdigit(peek())) {
+                        oss << advance();
+                    }
+
+                    auto lexeme = oss.str();
+
+                    return (token){
+                        .kind = token_kind::number,
+                        .lexeme = lexeme,
+                        .position = position,
+                        .value = hex_string_to_double(lexeme),
+                    };
+                }
+
+                while (!eof() && is_digit(peek())) {
+                    oss << advance();
+                }
+
+                if (peek() == '.') {
+                    oss << advance();
+                    while (!eof() && is_digit(peek())) {
+                        oss << advance();
+                    }
+                }
+
+                return (token){
+                    .kind = token_kind::number,
+                    .lexeme = oss.str(),
+                    .position = position,
+                };
+            }
+
+            auto read_string(source_position position) -> token {
+                advance();
+
+                std::ostringstream oss;
+                while (!eof()) {
+                    auto ch = peek();
+
+                    if (ch == '\n') {
+                        goto bad_string;
+                    }
+
+                    if (ch == '"') {
+                        break;
+                    }
+
+                    if (ch == '\\') {
+                        advance();
+                        if (eof()) {
+                            goto bad_string;
+                        }
+
+                        ch = advance();
+                        switch (ch) {
+                        case 'n':  oss << '\n'; continue;
+                        case 'r':  oss << '\r'; continue;
+                        case '"':  oss << '"'; continue;
+                        case '\\': oss << '\\'; continue;
+                        default:   goto bad_string;
+                        }
+                    }
+
+                    oss << advance();
+                }
+
+                advance();
+
+                return (token){
+                    .kind = token_kind::string,
+                    .lexeme = oss.str(),
+                    .position = position,
+                };
+
+            bad_string:
+                return (token){
+                    .kind = token_kind::invalid,
+                    .lexeme = oss.str(),
+                    .position = current_position,
+                };
+            }
+
+            auto read_single_line_comment(source_position position) -> token {
+                std::ostringstream oss;
+
+                oss << '/' << advance();
+                while (!eof() && peek() != '\n') {
+                    oss << advance();
+                }
+
+                return (token){
+                    .kind = token_kind::comment,
+                    .lexeme = oss.str(),
+                    .position = position,
+                };
+            }
+
+            auto read_multi_line_comment(source_position position) -> token {
+                std::ostringstream oss;
+
+                oss << '/' << advance();
+                while (!eof()) {
+                    auto ch = advance();
+
+                    oss << ch;
+                    if (ch == '*' && peek() == '/') {
+                        oss << advance();
+                        break;
+                    }
+                }
+
+                return (token){
+                    .kind = token_kind::comment,
+                    .lexeme = oss.str(),
+                    .position = position,
+                };
+            }
+
+            auto read_symbol(source_position position) -> token {
+                auto ch = advance();
+                if (ch == '/') {
+                    switch (peek()) {
+                    case '/': return read_single_line_comment(position);
+                    case '*': return read_multi_line_comment(position);
+                    default:  break;
+                    }
+                }
+
+                std::ostringstream oss;
+                oss << ch;
+
+                auto kind = token_kind::invalid;
+
+                auto match_next = [&](char expected, token_kind match_kind) -> bool {
+                    if (peek() != expected) {
+                        return false;
+                    }
+                    oss << advance();
+                    kind = match_kind;
+                    return true;
+                };
+
+                auto check_for_double = [&](token_kind single_op, token_kind double_op) -> token_kind {
+                    if (peek() != '=') {
+                        return single_op;
+                    }
+                    oss << advance();
+                    return double_op;
+                };
+
+                switch (ch) {
+                case '.': kind = token_kind::dot; break;
+                case ',': kind = token_kind::comma; break;
+                case '?': kind = token_kind::question; break;
+                case ':': kind = token_kind::colon; break;
+                case ';': kind = token_kind::semicolon; break;
+                case '{': kind = token_kind::lbrace; break;
+                case '}': kind = token_kind::rbrace; break;
+                case '(': kind = token_kind::lparen; break;
+                case ')': kind = token_kind::rparen; break;
+                case '[': kind = token_kind::lbracket; break;
+                case ']': kind = token_kind::rbracket; break;
+
+                case '+':
+                    if (match_next('+', token_kind::op_increment) ||  // ++
+                        match_next('=', token_kind::op_assign_add)) { // +=
+                        break;
+                    }
+                    kind = token_kind::op_add;
+                    break;
+
+                case '-':
+                    if (match_next('-', token_kind::op_decrement) ||       // --
+                        match_next('=', token_kind::op_assign_subtract)) { // -=
+                        break;
+                    }
+                    kind = token_kind::op_subtract;
+                    break;
+
+                case '*': kind = check_for_double(token_kind::op_multiply, token_kind::op_assign_multiply); break;
+                case '/': kind = check_for_double(token_kind::op_divide, token_kind::op_assign_divide); break;
+                case '%': kind = token_kind::op_modulo; break;
+                case '^': kind = token_kind::op_exponent; break;
+                case '@': kind = check_for_double(token_kind::op_concat, token_kind::op_assign_concat); break;
+                case '<': kind = check_for_double(token_kind::op_lt, token_kind::op_lte); break;
+                case '>': kind = check_for_double(token_kind::op_gt, token_kind::op_gte); break;
+                case '!': kind = check_for_double(token_kind::op_not, token_kind::op_neq); break;
+                case '=': kind = check_for_double(token_kind::op_assign, token_kind::op_eq); break;
+
+                case '|':
+                    if (peek() == '|') {
+                        oss << advance();
+                        kind = token_kind::op_or;
+                    }
+
+                case '&':
+                    if (peek() == '&') {
+                        oss << advance();
+                        kind = token_kind::op_and;
+                    }
+                    break;
+
+                case 'i': // in
+                    if (peek() == 'n') {
+                        oss << advance();
+                        kind = token_kind::op_in;
+                    }
+                    break;
+
+                default: kind = token_kind::invalid;
+                }
+
+                return (token){
+                    .kind = kind,
+                    .lexeme = oss.str(),
+                    .position = position,
+                };
+            }
+
+            auto next_token() -> token {
+                skip_whitespace();
+
+                if (eof()) {
+                    return (token){
+                        .kind = token_kind::eof,
+                        .position = current_position,
+                    };
+                }
+
+                auto ch = peek();
+                if (ch == '_' || is_alpha(ch)) {
+                    return read_identifier(current_position);
+                }
+
+                if (is_digit(ch)) {
+                    return read_number(current_position);
+                }
+
+                switch (ch) {
+                case '"': return read_string(current_position);
+                default:  return read_symbol(current_position);
+                }
+            }
+        };
+
+        constexpr auto reserved_token_vector_size = 100;
+    }
+
+    auto token_kind_string(token_kind kind) -> string_view {
+        switch (kind) {
+        case token_kind::eof:                return "eof";
+        case token_kind::keyword:            return "keyword";
+        case token_kind::identifier:         return "identifier";
+        case token_kind::number:             return "number";
+        case token_kind::string:             return "string";
+        case token_kind::comment:            return "comment";
+        case token_kind::invalid:            return "invalid";
+        case token_kind::dot:                return "dot";
+        case token_kind::question:           return "question";
+        case token_kind::colon:              return "colon";
+        case token_kind::semicolon:          return "semicolon";
+        case token_kind::lbrace:             return "lbrace";
+        case token_kind::rbrace:             return "rbrace";
+        case token_kind::lparen:             return "lparen";
+        case token_kind::rparen:             return "rparen";
+        case token_kind::lbracket:           return "lbracket";
+        case token_kind::rbracket:           return "rbracket";
+        case token_kind::op_add:             return "op_add";
+        case token_kind::op_subtract:        return "op_subtract";
+        case token_kind::op_multiply:        return "op_multiply";
+        case token_kind::op_divide:          return "op_divide";
+        case token_kind::op_modulo:          return "op_modulo";
+        case token_kind::op_exponent:        return "op_exponent";
+        case token_kind::op_concat:          return "op_concat";
+        case token_kind::op_lt:              return "op_lt";
+        case token_kind::op_lte:             return "op_lte";
+        case token_kind::op_gt:              return "op_gt";
+        case token_kind::op_gte:             return "op_gte";
+        case token_kind::op_eq:              return "op_eq";
+        case token_kind::op_neq:             return "op_neq";
+        case token_kind::op_or:              return "op_or";
+        case token_kind::op_not:             return "op_not";
+        case token_kind::op_assign:          return "op_assign";
+        case token_kind::op_assign_add:      return "op_assign_add";
+        case token_kind::op_assign_subtract: return "op_assign_substract";
+        case token_kind::op_assign_multiply: return "op_assign_multiply";
+        case token_kind::op_assign_divide:   return "op_assign_divide";
+        case token_kind::op_assign_concat:   return "op_assign_concat";
+        case token_kind::op_increment:       return "op_increment";
+        case token_kind::op_decrement:       return "op_decrement";
+        case token_kind::op_in:              return "op_in";
+        default:                             return "unknown";
+        }
+    }
+
+    auto tokenize(stream &ifs) -> tokenize_result {
+        if (!ifs.is_open()) {
+            return std::unexpected((lexer_error){
+                .kind = lexer_error_kind::bad_stream,
+                .message = "the stream is closed",
+            });
+        }
+
+        tokens result;
+
+        result.reserve(reserved_token_vector_size);
+
+        lexer lexer(ifs);
+        while (true) {
+            auto token = lexer.next_token();
+            if (token.kind == token_kind::eof) {
+                break;
+            }
+
+            if (token.kind == token_kind::invalid) {
+                return std::unexpected((lexer_error){
+                    .kind = lexer_error_kind::bad_token,
+                    .message = std::format(
+                        "invalid token at line {}, column {}",
+                        token.position.line, token.position.column),
+                    .position = token.position,
+                });
+            }
+
+            result.push_back(token);
+        }
+
+        return result;
+    }
+}

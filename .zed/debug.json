@@ -1,0 +1,13 @@
+[
+  {
+    "label": "Debug GS2 parser",
+    "build": {
+      "command": "cmake",
+      "args": ["--build", "build"],
+      "cwd": "$ZED_WORKTREE_ROOT",
+    },
+    "program": "$ZED_WORKTREE_ROOT/build/src/gs2",
+    "request": "launch",
+    "adapter": "CodeLLDB",
+  },
+]
