@@ -207,10 +207,13 @@ namespace og::gs2 {
                     }
                 }
 
+                auto lexeme = oss.str();
+
                 return (token){
                     .kind = token_kind::number,
-                    .lexeme = oss.str(),
+                    .lexeme = lexeme,
                     .position = position,
+                    .value = string_to_double(lexeme),
                 };
             }
 
