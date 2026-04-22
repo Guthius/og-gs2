@@ -28,6 +28,7 @@ namespace og::gs2 {
         question,           // ?
         colon,              // :
         semicolon,          // ;
+        pipe,               // |
         lbrace,             // {
         rbrace,             // }
         lparen,             // (
