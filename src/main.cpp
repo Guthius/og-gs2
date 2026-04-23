@@ -28,13 +28,19 @@ auto main(int argc, char *argv[]) -> int {
 
     auto tokens = og::gs2::tokenize(ifs);
     if (!tokens) {
-        println(cerr, "Error: {}", tokens.error().message);
+        println(cerr, "Error: {} on line {}, column {}",
+                tokens.error().message,
+                tokens.error().position.line,
+                tokens.error().position.column);
         return 1;
     }
 
     auto unit = og::gs2::parse(*tokens);
     if (!unit) {
-        println(cerr, "Error: {}", unit.error().message);
+        println(cerr, "Error: {} on line {}, column {}",
+                unit.error().message,
+                unit.error().position.line,
+                unit.error().position.column);
         return 1;
     }
 

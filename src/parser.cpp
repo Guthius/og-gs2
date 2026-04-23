@@ -1036,9 +1036,7 @@ namespace og::gs2 {
 
         auto result = parser.parse();
         if (!result) {
-            return unexpected(parse_error{
-                .message = result.error().message,
-            });
+            return unexpected(result.error());
         }
 
         return std::move(*result);
