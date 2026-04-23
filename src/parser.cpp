@@ -235,9 +235,9 @@ namespace og::gs2 {
 
                 auto position = peek().position;
 
-                if (check(token_kind::pipe)) {
-                    advance();
+                advance();
 
+                if (check(token_kind::pipe)) {
                     auto min = parse_expr();
                     if (!min) {
                         return min;
@@ -266,7 +266,7 @@ namespace og::gs2 {
                     });
                 }
 
-                auto range = parse_expr();
+                auto range = parse_primary();
                 if (!range) {
                     return range;
                 }
