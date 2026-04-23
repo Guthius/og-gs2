@@ -487,7 +487,7 @@ namespace og::gs2 {
                     if (check(token_kind::dot)) {
                         advance();
 
-                        auto member = parse_expr();
+                        auto member = parse_primary();
                         if (!member) {
                             return member;
                         }
