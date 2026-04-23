@@ -199,6 +199,10 @@ namespace og::gs2::ast {
                 body("body", st->body);
             }
 
+            void operator()(const unique_ptr<switch_stmt> &st) {
+                node("Switch");
+            }
+
           private:
             class child_scope {
                 printer_impl &printer_;

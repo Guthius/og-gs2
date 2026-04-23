@@ -71,6 +71,17 @@ namespace og::gs2 {
                 return advance();
             }
 
+            auto expect_keyword(keyword_kind kind, string_view message) -> expected<token, parse_error> {
+                if (!check_keyword(kind)) {
+                    const auto &token = peek();
+                    return unexpected(parse_error{
+                        .message = format("{} (got '{}')", message, token.lexeme),
+                        .position = token.position,
+                    });
+                }
+                return advance();
+            }
+
             auto expect_identifier(string_view message) -> expected<token, parse_error> {
                 return expect(token_kind::identifier, message);
             }
@@ -949,6 +960,95 @@ namespace og::gs2 {
                 });
             }
 
+            auto parse_switch_case() -> expected<ast::case_stmt, parse_error> {
+                auto position = peek().position;
+
+                if (auto match = expect_keyword(keyword_kind::case_, "expected 'case'"); !match) {
+                    return unexpected(match.error());
+                }
+
+                auto value = parse_expr();
+                if (!value) {
+                    return unexpected(value.error());
+                }
+
+                if (auto match = expect(token_kind::colon, "expected ':' after case"); !match) {
+                    return unexpected(match.error());
+                }
+
+                ast::stmt_list body;
+                while (!at_end() && !check_keyword(keyword_kind::break_)) {
+                    auto stmt = parse_stmt();
+                    if (!stmt) {
+                        return unexpected(stmt.error());
+                    }
+
+                    body.push_back(std::move(*stmt));
+
+                    if (check_keyword(keyword_kind::break_)) {
+                        break;
+                    }
+                }
+
+                if (auto match = expect_keyword(keyword_kind::break_, "expected 'break'"); !match) {
+                    return unexpected(match.error());
+                }
+
+                return ast::case_stmt{
+                    .value = std::move(*value),
+                    .body = std::move(body),
+                    .position = position,
+                };
+            }
+
+            auto parse_switch() -> expected_stmt {
+                auto position = peek().position;
+                advance();
+
+                if (auto match = expect(token_kind::lparen, "expected '(' after 'switch'"); !match) {
+                    return unexpected(match.error());
+                }
+
+                auto operand = parse_expr();
+                if (!operand) {
+                    return unexpected(operand.error());
+                }
+
+                if (auto match = expect(token_kind::rparen, "expected ')' after switch operand"); !match) {
+                    return unexpected(match.error());
+                }
+
+                if (auto match = expect(token_kind::lbrace, "expected '{'"); !match) {
+                    return unexpected(match.error());
+                }
+
+                vector<ast::case_stmt> cases;
+                while (!at_end() && !check(token_kind::rbrace)) {
+                    auto case_ = parse_switch_case();
+                    if (!case_) {
+                        return unexpected(case_.error());
+                    }
+
+                    cases.push_back(std::move(*case_));
+
+                    match(token_kind::semicolon);
+
+                    if (check(token_kind::rbrace)) {
+                        break;
+                    }
+                }
+
+                if (auto match = expect(token_kind::rbrace, "expected '}'"); !match) {
+                    return unexpected(match.error());
+                }
+
+                return make_node(ast::switch_stmt{
+                    .operand = std::move(*operand),
+                    .cases = std::move(cases),
+                    .position = position,
+                });
+            }
+
             auto parse_stmt() -> expected_stmt {
                 auto position = peek().position;
 
@@ -968,6 +1068,7 @@ namespace og::gs2 {
                     case keyword_kind::with:     return parse_with();
                     case keyword_kind::return_:  return parse_return();
                     case keyword_kind::function: return parse_function();
+                    case keyword_kind::switch_:  return parse_switch();
 
                     case keyword_kind::break_:
                         advance();

@@ -75,6 +75,8 @@ namespace og::gs2 {
         null,
         true_,
         false_,
+        switch_,
+        case_,
     };
 
     struct token {

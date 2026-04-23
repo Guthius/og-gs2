@@ -148,6 +148,7 @@ namespace og::gs2::ast {
     struct break_stmt;
     struct continue_stmt;
     struct function_stmt;
+    struct switch_stmt;
 
     using stmt = std::variant<
         std::unique_ptr<block_stmt>,
@@ -160,7 +161,8 @@ namespace og::gs2::ast {
         std::unique_ptr<return_stmt>,
         std::unique_ptr<break_stmt>,
         std::unique_ptr<continue_stmt>,
-        std::unique_ptr<function_stmt>>;
+        std::unique_ptr<function_stmt>,
+        std::unique_ptr<switch_stmt>>;
 
     using stmt_list = std::vector<stmt>;
 
@@ -225,6 +227,18 @@ namespace og::gs2::ast {
         std::string name;
         std::vector<std::string> params;
         block_stmt body;
+        source_position position;
+    };
+
+    struct case_stmt {
+        expr value;
+        stmt_list body;
+        source_position position;
+    };
+
+    struct switch_stmt {
+        expr operand;
+        std::vector<case_stmt> cases;
         source_position position;
     };
 
