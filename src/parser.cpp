@@ -60,6 +60,14 @@ namespace og::gs2 {
                 return true;
             }
 
+            auto match_keyword(keyword_kind kind) -> bool {
+                if (!check_keyword(kind)) {
+                    return false;
+                }
+                ++pos;
+                return true;
+            }
+
             auto expect(token_kind kind, string_view message) -> expected<token, parse_error> {
                 if (!check(kind)) {
                     const auto &token = peek();
@@ -943,6 +951,8 @@ namespace og::gs2 {
 
             auto parse_function() -> expected_stmt {
                 auto position = peek().position;
+
+                auto is_public = match_keyword(keyword_kind::public_);
                 advance();
 
                 auto name = expect_identifier("expected function name");
@@ -981,6 +991,7 @@ namespace og::gs2 {
                     .name = name->lexeme,
                     .params = std::move(params),
                     .body = std::move(*body),
+                    .is_public = is_public,
                     .position = position,
                 });
             }
@@ -1092,6 +1103,7 @@ namespace og::gs2 {
                     case keyword_kind::for_:     return parse_for();
                     case keyword_kind::with:     return parse_with();
                     case keyword_kind::return_:  return parse_return();
+                    case keyword_kind::public_:
                     case keyword_kind::function: return parse_function();
                     case keyword_kind::switch_:  return parse_switch();
 

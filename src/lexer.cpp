@@ -66,6 +66,7 @@ namespace og::gs2 {
             make_keyword("false", keyword_kind::false_),
             make_keyword("switch", keyword_kind::switch_),
             make_keyword("case", keyword_kind::case_),
+            make_keyword("public", keyword_kind::public_),
         };
 
         auto get_keyword_kind(string_view lexeme) -> optional<keyword_kind> {

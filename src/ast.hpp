@@ -227,6 +227,7 @@ namespace og::gs2::ast {
         std::string name;
         std::vector<std::string> params;
         block_stmt body;
+        bool is_public;
         source_position position;
     };
 
