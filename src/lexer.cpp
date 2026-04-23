@@ -52,7 +52,6 @@ namespace og::gs2 {
             make_keyword("if", keyword_kind::if_),
             make_keyword("else", keyword_kind::else_),
             make_keyword("while", keyword_kind::while_),
-            make_keyword("foreach", keyword_kind::foreach),
             make_keyword("for", keyword_kind::for_),
             make_keyword("function", keyword_kind::function),
             make_keyword("return", keyword_kind::return_),

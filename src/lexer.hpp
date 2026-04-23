@@ -64,7 +64,6 @@ namespace og::gs2 {
         if_,
         else_,
         while_,
-        foreach,
         for_,
         function,
         return_,
