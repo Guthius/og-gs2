@@ -1,6 +1,9 @@
 # CLangd Cache
 .cache/
 
+# Zed
+.zed/
+
 # CLion
 .idea/
 
