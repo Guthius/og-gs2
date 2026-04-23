@@ -920,6 +920,27 @@ namespace og::gs2 {
                 });
             }
 
+            auto parse_function_param_name() -> expected<string, parse_error> {
+                auto token = expect_identifier("expected parameter name");
+                if (!token) {
+                    return unexpected(token.error());
+                }
+
+                string name = token->lexeme;
+                if (check(token_kind::dot)) {
+                    advance();
+
+                    auto rest = expect_identifier("expected identifier after '.' in parameter name");
+                    if (!rest) {
+                        return unexpected(rest.error());
+                    }
+
+                    name = rest->lexeme;
+                }
+
+                return name;
+            }
+
             auto parse_function() -> expected_stmt {
                 auto position = peek().position;
                 advance();
@@ -935,12 +956,12 @@ namespace og::gs2 {
 
                 vector<string> params;
                 while (!at_end() && !check(token_kind::rparen)) {
-                    auto param = expect_identifier("expected parameter name");
-                    if (!param) {
-                        return unexpected(param.error());
+                    auto param_name = parse_function_param_name();
+                    if (!param_name) {
+                        return unexpected(param_name.error());
                     }
 
-                    params.push_back(param->lexeme);
+                    params.push_back(*param_name);
 
                     if (!match(token_kind::comma)) {
                         break;
