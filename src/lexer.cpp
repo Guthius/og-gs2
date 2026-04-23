@@ -8,6 +8,8 @@
 #include <sstream>
 
 namespace og::gs2 {
+    using namespace std;
+
     namespace {
         constexpr auto is_whitespace(char ch) -> bool {
             return ch == '\t' || ch == '\n' ||
@@ -39,14 +41,14 @@ namespace og::gs2 {
             keyword_kind kind;
         };
 
-        constexpr keyword_info make_keyword(string_view value, keyword_kind kind) {
+        constexpr auto make_keyword(string_view value, keyword_kind kind) -> keyword_info {
             return (keyword_info){
                 .keyword = value,
                 .kind = kind,
             };
         }
 
-        constexpr std::array keywords = {
+        constexpr array keywords = {
             make_keyword("if", keyword_kind::if_),
             make_keyword("else", keyword_kind::else_),
             make_keyword("while", keyword_kind::while_),
@@ -65,14 +67,14 @@ namespace og::gs2 {
             make_keyword("false", keyword_kind::false_),
         };
 
-        auto get_keyword_kind(string_view lexeme) -> std::optional<keyword_kind> {
+        auto get_keyword_kind(string_view lexeme) -> optional<keyword_kind> {
             for (const auto &info : keywords) {
                 if (info.keyword == lexeme) {
                     return info.kind;
                 }
             }
 
-            return std::nullopt;
+            return nullopt;
         }
 
         struct lexer {
@@ -81,15 +83,15 @@ namespace og::gs2 {
                 .column = 1,
             };
 
-            stream &fs;
+            ifstream &stream;
 
-            explicit lexer(stream &fs) : fs(fs) {
+            explicit lexer(ifstream &stream) : stream(stream) {
             }
 
-            auto eof() -> bool { return fs.eof(); }
+            auto eof() -> bool { return stream.eof(); }
 
             auto peek() -> char {
-                return eof() ? 0 : static_cast<char>(fs.peek());
+                return eof() ? 0 : static_cast<char>(stream.peek());
             }
 
             auto advance() -> char {
@@ -98,7 +100,7 @@ namespace og::gs2 {
                 }
 
                 char ch;
-                if (!fs.get(ch)) {
+                if (!stream.get(ch)) {
                     return 0;
                 }
 
@@ -118,7 +120,7 @@ namespace og::gs2 {
             }
 
             auto read_identifier(source_position position) -> token {
-                std::ostringstream oss;
+                ostringstream oss;
 
                 while (!eof() && (peek() == '_' || is_alphanumeric(peek()))) {
                     oss << advance();
@@ -152,7 +154,7 @@ namespace og::gs2 {
 
             static auto string_to_double(string_view str) -> double {
                 const auto *ptr = str.data();
-                return std::strtod(ptr, nullptr);
+                return strtod(ptr, nullptr);
             }
 
             static auto hex_string_to_double(string_view str) -> double {
@@ -164,13 +166,13 @@ namespace og::gs2 {
                 }
 
                 const auto *ptr = str.data();
-                auto value = std::strtoull(ptr, nullptr, base10);
+                auto value = strtoull(ptr, nullptr, base10);
 
                 return static_cast<double>(value);
             }
 
             auto read_number(source_position position) -> token {
-                std::ostringstream oss;
+                ostringstream oss;
 
                 oss << advance();
 
@@ -222,7 +224,7 @@ namespace og::gs2 {
             auto read_string(source_position position) -> token {
                 advance();
 
-                std::ostringstream oss;
+                ostringstream oss;
                 while (!eof()) {
                     auto ch = peek();
 
@@ -266,7 +268,7 @@ namespace og::gs2 {
             }
 
             auto read_single_line_comment(source_position position) -> token {
-                std::ostringstream oss;
+                ostringstream oss;
 
                 oss << '/' << advance();
                 while (!eof() && peek() != '\n') {
@@ -281,7 +283,7 @@ namespace og::gs2 {
             }
 
             auto read_multi_line_comment(source_position position) -> token {
-                std::ostringstream oss;
+                ostringstream oss;
 
                 oss << '/' << advance();
                 while (!eof()) {
@@ -311,7 +313,7 @@ namespace og::gs2 {
                     }
                 }
 
-                std::ostringstream oss;
+                ostringstream oss;
                 oss << ch;
 
                 auto kind = token_kind::invalid;
@@ -473,9 +475,9 @@ namespace og::gs2 {
         }
     }
 
-    auto tokenize(stream &ifs) -> tokenize_result {
+    auto tokenize(ifstream &ifs) -> tokenize_result {
         if (!ifs.is_open()) {
-            return std::unexpected((lexer_error){
+            return unexpected((lexer_error){
                 .kind = lexer_error_kind::bad_stream,
                 .message = "the stream is closed",
             });
@@ -493,9 +495,9 @@ namespace og::gs2 {
             }
 
             if (token.kind == token_kind::invalid) {
-                return std::unexpected((lexer_error){
+                return unexpected((lexer_error){
                     .kind = lexer_error_kind::bad_token,
-                    .message = std::format(
+                    .message = format(
                         "invalid token at line {}, column {}",
                         token.position.line, token.position.column),
                     .position = token.position,
@@ -508,21 +510,21 @@ namespace og::gs2 {
         return result;
     }
 
-    void print_tokens(stream &ifs) {
+    void print_tokens(ifstream &ifs) {
         auto result = og::gs2::tokenize(ifs);
         if (result.has_value()) {
-            std::println("{:>5} |{:>5} | {:<20}| {}", "Line", "Col", "Type", "Lexeme");
-            std::println("------+------+---------------------+---------------------");
+            println("{:>5} |{:>5} | {:<20}| {}", "Line", "Col", "Type", "Lexeme");
+            println("------+------+---------------------+---------------------");
 
             for (auto &tok : *result) {
-                std::println(
+                println(
                     "{:>5} |{:>5} | {:<20}| {}",
                     tok.position.line, tok.position.column,
                     og::gs2::token_kind_string(tok.kind),
                     tok.lexeme);
             }
         } else {
-            std::println(std::cerr, "Error: {}", result.error().message);
+            println(cerr, "Error: {}", result.error().message);
         }
     }
 }

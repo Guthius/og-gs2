@@ -1,14 +1,10 @@
 #pragma once
 
-#include <cstdint>
 #include <expected>
 #include <fstream>
-#include <string>
 #include <vector>
 
 namespace og::gs2 {
-    using string = std::string;
-    using string_view = std::string_view;
     using byte = uint8_t;
 
     struct source_position {
@@ -61,7 +57,7 @@ namespace og::gs2 {
         op_decrement,       // --
     };
 
-    auto token_kind_string(token_kind kind) -> string_view;
+    auto token_kind_string(token_kind kind) -> std::string_view;
 
     enum class keyword_kind : byte {
         unknown,
@@ -84,7 +80,7 @@ namespace og::gs2 {
 
     struct token {
         token_kind kind;
-        string lexeme;
+        std::string lexeme;
         keyword_kind keyword;
         source_position position;
         double value;
@@ -97,14 +93,13 @@ namespace og::gs2 {
 
     struct lexer_error {
         lexer_error_kind kind;
-        string message;
+        std::string message;
         source_position position;
     };
 
     using tokens = std::vector<token>;
     using tokenize_result = std::expected<tokens, lexer_error>;
-    using stream = std::ifstream;
 
-    auto tokenize(stream &ifs) -> tokenize_result;
-    void print_tokens(stream &ifs);
+    auto tokenize(std::ifstream &ifs) -> tokenize_result;
+    void print_tokens(std::ifstream &ifs);
 }
