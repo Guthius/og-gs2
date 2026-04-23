@@ -229,4 +229,6 @@ namespace og::gs2::ast {
     };
 
     using unit = stmt_list;
+
+    void print(std::ostream &os, const unit &stmts);
 }

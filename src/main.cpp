@@ -38,6 +38,6 @@ auto main(int argc, char *argv[]) -> int {
         return 1;
     }
 
-    println("OK");
+    og::gs2::ast::print(cout, *unit);
     return 0;
 }
