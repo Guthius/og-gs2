@@ -249,6 +249,8 @@ namespace og::gs2 {
                 advance();
 
                 if (check(token_kind::pipe)) {
+                    advance();
+
                     auto min = parse_expr();
                     if (!min) {
                         return min;
@@ -277,7 +279,7 @@ namespace og::gs2 {
                     });
                 }
 
-                auto range = parse_primary();
+                auto range = parse_postfix();
                 if (!range) {
                     return range;
                 }
