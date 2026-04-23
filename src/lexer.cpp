@@ -170,18 +170,30 @@ namespace og::gs2 {
                 return static_cast<double>(value);
             }
 
+            auto read_fraction(source_position position) -> token {
+                ostringstream oss;
+
+                oss << '.';
+                oss << advance();
+
+                while (!eof() && is_digit(peek())) {
+                    oss << advance();
+                }
+
+                auto lexeme = oss.str();
+
+                return (token){
+                    .kind = token_kind::number,
+                    .lexeme = lexeme,
+                    .position = position,
+                    .value = string_to_double(lexeme),
+                };
+            }
+
             auto read_number(source_position position) -> token {
                 ostringstream oss;
 
                 oss << advance();
-
-                if (eof()) {
-                    return (token){
-                        .kind = token_kind::number,
-                        .lexeme = oss.str(),
-                        .position = position,
-                    };
-                }
 
                 if (peek() == 'x') {
                     oss << advance();
@@ -335,7 +347,13 @@ namespace og::gs2 {
                 };
 
                 switch (ch) {
-                case '.': kind = token_kind::dot; break;
+                case '.':
+                    if (is_digit(peek())) {
+                        return read_fraction(position);
+                    }
+                    kind = token_kind::dot;
+                    break;
+
                 case ',': kind = token_kind::comma; break;
                 case '?': kind = token_kind::question; break;
                 case ':': kind = token_kind::colon; break;
