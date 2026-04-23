@@ -478,6 +478,7 @@ namespace og::gs2 {
         case token_kind::op_gte:             return "op_gte";
         case token_kind::op_eq:              return "op_eq";
         case token_kind::op_neq:             return "op_neq";
+        case token_kind::op_and:             return "op_and";
         case token_kind::op_or:              return "op_or";
         case token_kind::op_not:             return "op_not";
         case token_kind::op_assign:          return "op_assign";

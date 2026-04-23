@@ -195,7 +195,7 @@ namespace og::gs2::ast {
                     params += st->params[i];
                 }
 
-                node(format("Function {} ({})", st->name, params));
+                node(format("Function {}({})", st->name, params));
                 body("body", st->body);
             }
 
