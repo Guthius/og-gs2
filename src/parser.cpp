@@ -583,7 +583,7 @@ namespace og::gs2 {
                     advance();
 
                     auto expr = parse_expr();
-                    if (expr) {
+                    if (!expr) {
                         return expr;
                     }
 
