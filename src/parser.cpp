@@ -702,6 +702,32 @@ namespace og::gs2 {
                 auto position = peek().position;
                 advance();
 
+                if (check(token_kind::lbracket)) {
+                    auto identifier_position = peek().position;
+                    advance();
+
+                    auto size = parse_expr();
+                    if (!size) {
+                        return size;
+                    }
+
+                    if (auto match = expect(token_kind::rbracket, "expected ']'"); !match) {
+                        return unexpected(match.error());
+                    }
+
+                    ast::expr_list args;
+                    args.push_back(std::move(*size));
+
+                    return make_node(ast::new_expr{
+                        .object_name = make_node(ast::identifier_expr{
+                            .name = "Array",
+                            .position = identifier_position,
+                        }),
+                        .args = std::move(args),
+                        .position = position,
+                    });
+                }
+
                 auto identifier = parse_primary();
                 if (!identifier) {
                     return unexpected(identifier.error());
