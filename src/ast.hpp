@@ -226,7 +226,7 @@ namespace og::gs2::ast {
     struct function_stmt {
         std::string name;
         std::vector<std::string> params;
-        block_stmt body;
+        stmt body;
         bool is_public;
         source_position position;
     };

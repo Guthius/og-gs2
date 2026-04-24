@@ -196,7 +196,7 @@ namespace og::gs2::ast {
                 }
 
                 node(format("Function {}({})", st->name, params));
-                body("body", st->body);
+                property("body", st->body);
             }
 
             void operator()(const unique_ptr<switch_stmt> &st) {
