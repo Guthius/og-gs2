@@ -1,8 +1,5 @@
 #include "parser.hpp"
 
-#include "ast.hpp"
-#include "lexer.hpp"
-
 namespace og::gs2 {
     using namespace std;
 

@@ -1,9 +1,6 @@
 #pragma once
 
 #include "ast.hpp"
-#include "lexer.hpp"
-
-#include <expected>
 
 namespace og::gs2 {
     struct parse_error {
