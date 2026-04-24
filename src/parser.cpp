@@ -67,6 +67,11 @@ namespace og::gs2 {
                 return true;
             }
 
+            void skip_semicolons() {
+                while (!at_end() && match(token_kind::semicolon)) {
+                }
+            }
+
             auto expect(token_kind kind, string_view message) -> expected<token, parse_error> {
                 if (!check(kind)) {
                     const auto &token = peek();
@@ -1018,7 +1023,7 @@ namespace og::gs2 {
                     value = std::move(*result);
                 }
 
-                match(token_kind::semicolon);
+                skip_semicolons();
 
                 return make_node(ast::return_stmt{
                     .value = std::move(value),
@@ -1167,7 +1172,7 @@ namespace og::gs2 {
 
                     items.push_back(std::move(*item));
 
-                    match(token_kind::semicolon);
+                    skip_semicolons();
 
                     if (check(token_kind::rbrace)) {
                         break;
@@ -1209,7 +1214,7 @@ namespace og::gs2 {
 
                     case keyword_kind::break_:
                         advance();
-                        match(token_kind::semicolon);
+                        skip_semicolons();
                         return make_node(ast::break_stmt{
                             .position = position,
                         });
@@ -1217,7 +1222,7 @@ namespace og::gs2 {
 
                     case keyword_kind::continue_:
                         advance();
-                        match(token_kind::semicolon);
+                        skip_semicolons();
                         return make_node(ast::continue_stmt{
                             .position = position,
                         });
@@ -1232,7 +1237,7 @@ namespace og::gs2 {
                     return unexpected(expr.error());
                 }
 
-                match(token_kind::semicolon);
+                skip_semicolons();
 
                 return make_node(ast::expr_stmt{
                     .expression = std::move(*expr),
