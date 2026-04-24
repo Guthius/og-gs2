@@ -1144,8 +1144,10 @@ namespace og::gs2 {
                 });
             }
 
-            auto parse() -> expected<ast::unit, parse_error> {
-                ast::unit body;
+            auto parse() -> expected_stmt {
+                auto position = peek().position;
+
+                ast::stmt_list body;
 
                 while (!at_end()) {
                     auto stmt = parse_stmt();
@@ -1156,7 +1158,14 @@ namespace og::gs2 {
                     body.push_back(std::move(*stmt));
                 }
 
-                return std::move(body);
+                if (body.size() == 1) {
+                    return std::move(body[0]);
+                }
+
+                return make_node(ast::block_stmt{
+                    .body = std::move(body),
+                    .position = position,
+                });
             }
         };
     }

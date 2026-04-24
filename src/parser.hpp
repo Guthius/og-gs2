@@ -11,7 +11,7 @@ namespace og::gs2 {
         source_position position;
     };
 
-    using parse_result = std::expected<ast::unit, parse_error>;
+    using parse_result = std::expected<ast::stmt, parse_error>;
 
     auto parse(const tokens &toks) -> parse_result;
 }

@@ -244,7 +244,5 @@ namespace og::gs2::ast {
         source_position position;
     };
 
-    using unit = stmt_list;
-
-    void print(std::ostream &os, const unit &stmts);
+    void print(std::ostream &os, const stmt &stmt);
 }

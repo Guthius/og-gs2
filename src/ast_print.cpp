@@ -14,8 +14,8 @@ namespace og::gs2::ast {
             explicit printer_impl(ostream &out) : out_(out) {
             }
 
-            void print(const stmt_list &list) {
-                print_stmt_list(list);
+            void print(const stmt &list) {
+                print_stmt(list);
             }
 
             void operator()(const unique_ptr<number_expr> &ex) {
@@ -285,9 +285,9 @@ namespace og::gs2::ast {
         };
     }
 
-    void print(std::ostream &os, const unit &stmts) {
+    void print(std::ostream &os, const stmt &stmt) {
         printer_impl printer(os);
 
-        printer.print(stmts);
+        printer.print(stmt);
     }
 }
