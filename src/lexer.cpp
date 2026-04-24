@@ -395,7 +395,7 @@ namespace og::gs2 {
 
                 case '*': kind = check_for_double(token_kind::op_multiply, token_kind::op_assign_multiply); break;
                 case '/': kind = check_for_double(token_kind::op_divide, token_kind::op_assign_divide); break;
-                case '%': kind = token_kind::op_modulo; break;
+                case '%': kind = check_for_double(token_kind::op_modulo, token_kind::op_assign_modulo); break;
                 case '^': kind = token_kind::op_exponent; break;
                 case '@': kind = check_for_double(token_kind::op_concat, token_kind::op_assign_concat); break;
                 case '<': kind = check_for_double(token_kind::op_lt, token_kind::op_lte); break;
@@ -500,6 +500,7 @@ namespace og::gs2 {
         case token_kind::op_assign_subtract: return "op_assign_substract";
         case token_kind::op_assign_multiply: return "op_assign_multiply";
         case token_kind::op_assign_divide:   return "op_assign_divide";
+        case token_kind::op_assign_modulo:   return "op_assign_modulo";
         case token_kind::op_assign_concat:   return "op_assign_concat";
         case token_kind::op_increment:       return "op_increment";
         case token_kind::op_decrement:       return "op_decrement";

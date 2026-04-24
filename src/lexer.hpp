@@ -54,6 +54,7 @@ namespace og::gs2 {
         op_assign_subtract, // -=
         op_assign_multiply, // *=
         op_assign_divide,   // /=
+        op_assign_modulo,   // %=
         op_assign_concat,   // @=
         op_increment,       // ++
         op_decrement,       // --

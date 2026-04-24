@@ -129,6 +129,7 @@ namespace og::gs2 {
                     token_kind::op_assign_subtract,
                     token_kind::op_assign_multiply,
                     token_kind::op_assign_divide,
+                    token_kind::op_assign_modulo,
                     token_kind::op_assign_concat,
                 };
 
