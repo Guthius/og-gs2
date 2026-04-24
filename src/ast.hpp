@@ -206,7 +206,7 @@ namespace og::gs2::ast {
 
     struct with_stmt {
         expr object;
-        block_stmt body;
+        stmt body;
         source_position position;
     };
 

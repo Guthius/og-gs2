@@ -162,11 +162,9 @@ namespace og::gs2::ast {
             }
 
             void operator()(const unique_ptr<with_stmt> &st) {
-                const auto has_body = !st->body.body.empty();
-
                 node("With");
-                property("object", st->object, !has_body);
-                body("body", st->body);
+                property("object", st->object);
+                property("body", st->body);
             }
 
             void operator()(const unique_ptr<return_stmt> &st) {

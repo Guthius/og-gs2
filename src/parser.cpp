@@ -897,7 +897,7 @@ namespace og::gs2 {
                     return unexpected(match.error());
                 }
 
-                auto body = parse_block();
+                auto body = parse_stmt();
                 if (!body) {
                     return unexpected(body.error());
                 }
