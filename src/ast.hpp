@@ -121,7 +121,7 @@ namespace og::gs2::ast {
     struct new_expr {
         expr object_name;
         expr_list args;
-        std::optional<expr_list> body;
+        expr_list body;
         source_position position;
     };
 

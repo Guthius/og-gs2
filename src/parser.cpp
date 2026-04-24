@@ -601,7 +601,7 @@ namespace og::gs2 {
                 }
 
                 if (check_keyword(keyword_kind::new_)) {
-                    advance();
+                    return parse_new();
                 }
 
                 if (check(token_kind::lparen)) {
@@ -672,6 +672,76 @@ namespace og::gs2 {
 
                 return unexpected(make_error(format(
                     "unexpected token '{}' in expression", peek().lexeme)));
+            }
+
+            auto parse_new_body() -> expected_expr_list {
+                ast::expr_list body;
+
+                if (check(token_kind::lbrace)) {
+                    while (!at_end() && !check(token_kind::rbrace)) {
+                        auto expr = parse_expr();
+                        if (!expr) {
+                            return unexpected(expr.error());
+                        }
+
+                        body.push_back(std::move(*expr));
+                        if (check(token_kind::rbrace)) {
+                            break;
+                        }
+                    }
+
+                    if (auto match = expect(token_kind::rbrace, "expected '}'"); !match) {
+                        return unexpected(match.error());
+                    }
+                }
+
+                return body;
+            }
+
+            auto parse_new() -> expected_expr {
+                auto position = peek().position;
+                advance();
+
+                auto identifier = parse_primary();
+                if (!identifier) {
+                    return unexpected(identifier.error());
+                }
+
+                if (!match(token_kind::lparen)) {
+                    return make_node(ast::new_expr{
+                        .object_name = std::move(*identifier),
+                        .position = position,
+                    });
+                }
+
+                ast::expr_list args;
+                while (!at_end() && !check(token_kind::rparen)) {
+                    auto expr = parse_expr();
+                    if (!expr) {
+                        return expr;
+                    }
+
+                    args.push_back(std::move(*expr));
+                    if (check(token_kind::rparen)) {
+                        break;
+                    }
+                }
+
+                if (auto match = expect(token_kind::rparen, "expected ')'"); !match) {
+                    return unexpected(match.error());
+                }
+
+                auto body = parse_new_body();
+                if (!body) {
+                    return unexpected(body.error());
+                }
+
+                return make_node(ast::new_expr{
+                    .object_name = std::move(*identifier),
+                    .args = std::move(args),
+                    .body = std::move(*body),
+                    .position = position,
+                });
             }
 
             auto parse_expr_list() -> expected_expr_list {
