@@ -77,6 +77,7 @@ namespace og::gs2 {
         false_,
         switch_,
         case_,
+        default_,
         public_,
     };
 

@@ -231,15 +231,16 @@ namespace og::gs2::ast {
         source_position position;
     };
 
-    struct case_stmt {
-        expr value;
-        stmt_list body;
-        source_position position;
-    };
-
     struct switch_stmt {
+        struct label {
+            std::optional<expr> value;
+            source_position position;
+        };
+
+        using item = std::variant<label, stmt>;
+
         expr operand;
-        std::vector<case_stmt> cases;
+        std::vector<item> items;
         source_position position;
     };
 

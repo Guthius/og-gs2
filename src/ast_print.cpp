@@ -201,6 +201,7 @@ namespace og::gs2::ast {
 
             void operator()(const unique_ptr<switch_stmt> &st) {
                 node("Switch");
+                property("operand", st->operand, true);
             }
 
           private:

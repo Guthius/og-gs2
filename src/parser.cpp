@@ -17,6 +17,8 @@ namespace og::gs2 {
             using expected_expr_list = expected<ast::expr_list, parse_error>;
             using expected_block_stmt = expected<ast::block_stmt, parse_error>;
             using expected_stmt = expected<ast::stmt, parse_error>;
+            using expected_string = expected<string, parse_error>;
+            using expected_switch_stmt_item = expected<ast::switch_stmt::item, parse_error>;
 
             tokens &tokens;
             size_t pos = 0;
@@ -928,7 +930,7 @@ namespace og::gs2 {
                 });
             }
 
-            auto parse_function_param_name() -> expected<string, parse_error> {
+            auto parse_function_param_name() -> expected_string {
                 auto token = expect_identifier("expected parameter name");
                 if (!token) {
                     return unexpected(token.error());
@@ -996,12 +998,10 @@ namespace og::gs2 {
                 });
             }
 
-            auto parse_switch_case() -> expected<ast::case_stmt, parse_error> {
+            auto parse_case() -> expected_switch_stmt_item {
                 auto position = peek().position;
 
-                if (auto match = expect_keyword(keyword_kind::case_, "expected 'case'"); !match) {
-                    return unexpected(match.error());
-                }
+                advance();
 
                 auto value = parse_expr();
                 if (!value) {
@@ -1012,29 +1012,33 @@ namespace og::gs2 {
                     return unexpected(match.error());
                 }
 
-                ast::stmt_list body;
-                while (!at_end() && !check_keyword(keyword_kind::break_)) {
-                    auto stmt = parse_stmt();
-                    if (!stmt) {
-                        return unexpected(stmt.error());
-                    }
-
-                    body.push_back(std::move(*stmt));
-
-                    if (check_keyword(keyword_kind::break_)) {
-                        break;
-                    }
-                }
-
-                if (auto match = expect_keyword(keyword_kind::break_, "expected 'break'"); !match) {
-                    return unexpected(match.error());
-                }
-
-                return ast::case_stmt{
+                return ast::switch_stmt::label{
                     .value = std::move(*value),
-                    .body = std::move(body),
                     .position = position,
                 };
+            }
+
+            auto parse_switch_item() -> expected_switch_stmt_item {
+                if (check_keyword(keyword_kind::default_)) {
+                    auto position = peek().position;
+
+                    advance();
+
+                    if (auto match = expect(token_kind::colon, "expected ':' after default"); !match) {
+                        return unexpected(match.error());
+                    }
+
+                    return ast::switch_stmt::label{
+                        .value = nullopt,
+                        .position = position,
+                    };
+                }
+
+                if (check_keyword(keyword_kind::case_)) {
+                    return parse_case();
+                }
+
+                return parse_stmt();
             }
 
             auto parse_switch() -> expected_stmt {
@@ -1058,14 +1062,14 @@ namespace og::gs2 {
                     return unexpected(match.error());
                 }
 
-                vector<ast::case_stmt> cases;
+                vector<ast::switch_stmt::item> items;
                 while (!at_end() && !check(token_kind::rbrace)) {
-                    auto case_ = parse_switch_case();
-                    if (!case_) {
-                        return unexpected(case_.error());
+                    auto item = parse_switch_item();
+                    if (!item) {
+                        return unexpected(item.error());
                     }
 
-                    cases.push_back(std::move(*case_));
+                    items.push_back(std::move(*item));
 
                     match(token_kind::semicolon);
 
@@ -1080,7 +1084,7 @@ namespace og::gs2 {
 
                 return make_node(ast::switch_stmt{
                     .operand = std::move(*operand),
-                    .cases = std::move(cases),
+                    .items = std::move(items),
                     .position = position,
                 });
             }
