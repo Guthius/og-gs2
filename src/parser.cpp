@@ -1036,6 +1036,28 @@ namespace og::gs2 {
                 });
             }
 
+            auto parse_function_name() -> expected_string {
+                auto ident = expect_identifier("expected function name");
+                if (!ident) {
+                    return unexpected(ident.error());
+                }
+
+                auto name = ident->lexeme;
+                if (!match(token_kind::dot)) {
+                    return std::move(name);
+                }
+
+                ident = expect_identifier("expected function name");
+                if (!ident) {
+                    return unexpected(ident.error());
+                }
+
+                name += '.';
+                name += ident->lexeme;
+
+                return std::move(name);
+            }
+
             auto parse_function_param_name() -> expected_string {
                 auto token = expect_identifier("expected parameter name");
                 if (!token) {
@@ -1063,7 +1085,7 @@ namespace og::gs2 {
                 auto is_public = match_keyword(keyword_kind::public_);
                 advance();
 
-                auto name = expect_identifier("expected function name");
+                auto name = parse_function_name();
                 if (!name) {
                     return unexpected(name.error());
                 }
@@ -1096,7 +1118,7 @@ namespace og::gs2 {
                 }
 
                 return make_node(ast::function_stmt{
-                    .name = name->lexeme,
+                    .name = std::move(*name),
                     .params = std::move(params),
                     .body = std::move(*body),
                     .is_public = is_public,
