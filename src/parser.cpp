@@ -1319,6 +1319,8 @@ namespace og::gs2 {
                     }
 
                     body.push_back(std::move(*stmt));
+
+                    skip_semicolons();
                 }
 
                 if (body.size() == 1) {
