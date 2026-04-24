@@ -54,7 +54,6 @@ namespace og::gs2 {
             make_keyword("while", keyword_kind::while_),
             make_keyword("for", keyword_kind::for_),
             make_keyword("function", keyword_kind::function),
-            make_keyword("return", keyword_kind::return_),
             make_keyword("new", keyword_kind::new_),
             make_keyword("with", keyword_kind::with),
             make_keyword("in", keyword_kind::in),

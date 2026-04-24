@@ -68,7 +68,6 @@ namespace og::gs2 {
         while_,
         for_,
         function,
-        return_,
         new_,
         with,
         in,

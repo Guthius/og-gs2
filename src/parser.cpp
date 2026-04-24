@@ -1201,13 +1201,16 @@ namespace og::gs2 {
                     return make_node(std::move(*block));
                 }
 
+                if (check_identifier("return")) {
+                    return parse_return();
+                }
+
                 if (peek().kind == token_kind::keyword) {
                     switch (peek().keyword) {
                     case keyword_kind::if_:      return parse_if();
                     case keyword_kind::while_:   return parse_while();
                     case keyword_kind::for_:     return parse_for();
                     case keyword_kind::with:     return parse_with();
-                    case keyword_kind::return_:  return parse_return();
                     case keyword_kind::public_:
                     case keyword_kind::function: return parse_function();
                     case keyword_kind::switch_:  return parse_switch();
