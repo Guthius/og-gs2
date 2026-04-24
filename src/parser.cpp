@@ -107,6 +107,8 @@ namespace og::gs2 {
             };
 
             auto parse_expr() -> expected_expr {
+                match(token_kind::op_concat);
+
                 return parse_assign();
             }
 
@@ -604,8 +606,6 @@ namespace og::gs2 {
 
                 if (check(token_kind::lparen)) {
                     advance();
-
-                    match(token_kind::op_concat);
 
                     auto expr = parse_expr();
                     if (!expr) {
