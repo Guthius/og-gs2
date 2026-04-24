@@ -1,6 +1,17 @@
+add_library(gs2lib
+  ast_print.cpp
+  lexer.cpp
+  main.cpp
+  parser.cpp
+)
+
 add_executable(gs2
   ast_print.cpp
   lexer.cpp
   main.cpp
   parser.cpp
+)
+
+target_link_libraries(
+  gs2 PRIVATE gs2lib
 )

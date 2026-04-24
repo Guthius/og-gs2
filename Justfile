@@ -28,5 +28,9 @@ build target="all": configure
 run script: build
     ./{{ build_dir }}/src/gs2 {{ script }}
 
+# Run test
+test folder: build
+    ./{{ build_dir }}/test/test {{ folder }}
+
 # Rebuild the server from scratch
 rebuild: clean build
