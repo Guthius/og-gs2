@@ -38,6 +38,8 @@ namespace og::gs2 {
         op_modulo,          // %
         op_exponent,        // ^
         op_concat,          // @
+        op_concat_spc,      // SPC
+        op_concat_nl,       // NL
         op_lt,              // <
         op_lte,             // <=
         op_gt,              // >

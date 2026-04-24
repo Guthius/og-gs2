@@ -133,7 +133,15 @@ namespace og::gs2 {
 
                 if (lexeme == "SPC") {
                     return (token){
-                        .kind = token_kind::op_concat,
+                        .kind = token_kind::op_concat_spc,
+                        .lexeme = std::move(lexeme),
+                        .position = position,
+                    };
+                }
+
+                if (lexeme == "NL") {
+                    return (token){
+                        .kind = token_kind::op_concat_nl,
                         .lexeme = std::move(lexeme),
                         .position = position,
                     };
@@ -476,6 +484,8 @@ namespace og::gs2 {
         case token_kind::op_modulo:          return "op_modulo";
         case token_kind::op_exponent:        return "op_exponent";
         case token_kind::op_concat:          return "op_concat";
+        case token_kind::op_concat_spc:      return "op_concat_spc";
+        case token_kind::op_concat_nl:       return "op_concat_nl";
         case token_kind::op_lt:              return "op_lt";
         case token_kind::op_lte:             return "op_lte";
         case token_kind::op_gt:              return "op_gt";

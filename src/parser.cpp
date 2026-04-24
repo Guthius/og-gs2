@@ -363,8 +363,11 @@ namespace og::gs2 {
                     return left;
                 }
 
-                while (check(token_kind::op_concat)) {
+                while (check(token_kind::op_concat) ||
+                       check(token_kind::op_concat_spc) ||
+                       check(token_kind::op_concat_nl)) {
                     auto position = peek().position;
+                    auto op = peek().kind;
 
                     advance();
 
@@ -374,7 +377,7 @@ namespace og::gs2 {
                     }
 
                     left = make_node(ast::binary_expr{
-                        .op = token_kind::op_concat,
+                        .op = op,
                         .left = std::move(*left),
                         .right = std::move(*right),
                         .position = position,
