@@ -681,24 +681,28 @@ namespace og::gs2 {
             }
 
             auto parse_new_body() -> expected_expr_list {
+                if (!match(token_kind::lbrace)) {
+                    return {};
+                }
+
                 ast::expr_list body;
 
-                if (check(token_kind::lbrace)) {
-                    while (!at_end() && !check(token_kind::rbrace)) {
-                        auto expr = parse_expr();
-                        if (!expr) {
-                            return unexpected(expr.error());
-                        }
-
-                        body.push_back(std::move(*expr));
-                        if (check(token_kind::rbrace)) {
-                            break;
-                        }
+                while (!at_end() && !check(token_kind::rbrace)) {
+                    auto expr = parse_expr();
+                    if (!expr) {
+                        return unexpected(expr.error());
                     }
 
-                    if (auto match = expect(token_kind::rbrace, "expected '}'"); !match) {
-                        return unexpected(match.error());
+                    skip_semicolons();
+
+                    body.push_back(std::move(*expr));
+                    if (check(token_kind::rbrace)) {
+                        break;
                     }
+                }
+
+                if (auto match = expect(token_kind::rbrace, "expected '}'"); !match) {
+                    return unexpected(match.error());
                 }
 
                 return body;
