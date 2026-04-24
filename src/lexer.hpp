@@ -80,6 +80,7 @@ namespace og::gs2 {
         case_,
         default_,
         public_,
+        enum_,
     };
 
     struct token {

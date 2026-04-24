@@ -202,6 +202,21 @@ namespace og::gs2::ast {
                 property("operand", st->operand, true);
             }
 
+            void operator()(const unique_ptr<enum_stmt> &st) {
+                node(format("Enum ({} entries)", st->entries.size()));
+
+                for (size_t i = 0; i < st->entries.size(); ++i) {
+                    auto last = (i == st->entries.size() - 1);
+                    auto ctx = child(format("{}", st->entries[i].name), last);
+                    if (st->entries[i].value) {
+                        out_ << " = ";
+                        print_expr(*st->entries[i].value);
+                    } else {
+                        out_ << '\n';
+                    }
+                }
+            }
+
           private:
             class child_scope {
                 printer_impl &printer_;

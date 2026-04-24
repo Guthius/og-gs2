@@ -1190,6 +1190,63 @@ namespace og::gs2 {
                 });
             }
 
+            auto parse_enum() -> expected_stmt {
+                auto position = peek().position;
+                advance();
+
+                optional<string> name;
+                if (check(token_kind::identifier)) {
+                    name = peek().lexeme;
+                    advance();
+                }
+
+                if (auto match = expect(token_kind::lbrace, "expected '{' after enum"); !match) {
+                    return unexpected(match.error());
+                }
+
+                vector<ast::enum_stmt::entry> entries;
+                while (!at_end() && !check(token_kind::rbrace)) {
+                    auto entry_position = peek().position;
+
+                    auto ident = expect_identifier("expected enum entry name");
+                    if (!ident) {
+                        return unexpected(ident.error());
+                    }
+
+                    optional<ast::expr> value;
+                    if (match(token_kind::op_assign)) {
+                        auto expr = parse_expr();
+                        if (!expr) {
+                            return unexpected(expr.error());
+                        }
+
+                        value = std::move(*expr);
+                    }
+
+                    entries.push_back(ast::enum_stmt::entry{
+                        .name = ident->lexeme,
+                        .value = std::move(value),
+                        .position = entry_position,
+                    });
+
+                    if (!match(token_kind::comma)) {
+                        break;
+                    }
+                }
+
+                if (auto match = expect(token_kind::rbrace, "expected '}' after enum entries"); !match) {
+                    return unexpected(match.error());
+                }
+
+                skip_semicolons();
+
+                return make_node(ast::enum_stmt{
+                    .name = std::move(name),
+                    .entries = std::move(entries),
+                    .position = position,
+                });
+            }
+
             auto parse_stmt() -> expected_stmt {
                 auto position = peek().position;
 
@@ -1214,6 +1271,7 @@ namespace og::gs2 {
                     case keyword_kind::public_:
                     case keyword_kind::function: return parse_function();
                     case keyword_kind::switch_:  return parse_switch();
+                    case keyword_kind::enum_:    return parse_enum();
 
                     case keyword_kind::break_:
                         advance();
