@@ -25,8 +25,8 @@ build target="all": configure
     cmake --build {{ build_dir }} --target {{ target }}
 
 # Run the server
-run target="gs2": build
-    ./{{ build_dir }}/src/{{ target }}
+run script: build
+    ./{{ build_dir }}/src/gs2 {{ script }}
 
 # Rebuild the server from scratch
 rebuild: clean build
