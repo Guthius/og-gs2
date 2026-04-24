@@ -33,15 +33,15 @@ auto main(int argc, char *argv[]) -> int {
         return 1;
     }
 
-    auto unit = og::gs2::parse(*tokens);
-    if (!unit) {
+    auto stmt = og::gs2::parse(*tokens);
+    if (!stmt) {
         println(cerr, "Error: {} on line {}, column {}",
-                unit.error().message,
-                unit.error().position.line,
-                unit.error().position.column);
+                stmt.error().message,
+                stmt.error().position.line,
+                stmt.error().position.column);
         return 1;
     }
 
-    og::gs2::ast::print(cout, *unit);
+    og::gs2::ast::print(cout, *stmt);
     return 0;
 }
