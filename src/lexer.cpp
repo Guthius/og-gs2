@@ -531,8 +531,9 @@ namespace og::gs2 {
                 return unexpected((lexer_error){
                     .kind = lexer_error_kind::bad_token,
                     .message = format(
-                        "invalid token at line {}, column {}",
-                        token.position.line, token.position.column),
+                        "invalid token",
+                        token.position.line,
+                        token.position.column),
                     .position = token.position,
                 });
             }
