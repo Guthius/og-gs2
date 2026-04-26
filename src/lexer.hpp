@@ -83,6 +83,7 @@ namespace og::gs2 {
         default_,
         public_,
         enum_,
+        do_,
     };
 
     struct token {

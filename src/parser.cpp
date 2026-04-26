@@ -1,5 +1,4 @@
 #include "parser.hpp"
-#include "ast.hpp"
 
 namespace og::gs2 {
     using namespace std;
@@ -1297,6 +1296,41 @@ namespace og::gs2 {
                 });
             }
 
+            auto parse_do_while() -> expected_stmt {
+                auto position = peek().position;
+                advance();
+
+                auto body = parse_stmt();
+                if (!body) {
+                    return body;
+                }
+
+                if (auto match = expect_keyword(keyword_kind::while_, "expected while"); !match) {
+                    return unexpected(match.error());
+                }
+
+                if (auto match = expect(token_kind::lparen, "expected '(' after while"); !match) {
+                    return unexpected(match.error());
+                }
+
+                auto cond = parse_expr();
+                if (!cond) {
+                    return unexpected(cond.error());
+                }
+
+                if (auto match = expect(token_kind::rparen, "expected ')'"); !match) {
+                    return unexpected(match.error());
+                }
+
+                skip_semicolons();
+
+                return make_node(ast::do_while_stmt{
+                    .body = std::move(*body),
+                    .condition = std::move(*cond),
+                    .position = position,
+                });
+            }
+
             auto parse_stmt() -> expected_stmt {
                 auto position = peek().position;
 
@@ -1322,6 +1356,7 @@ namespace og::gs2 {
                     case keyword_kind::function: return parse_function();
                     case keyword_kind::switch_:  return parse_switch();
                     case keyword_kind::enum_:    return parse_enum();
+                    case keyword_kind::do_:      return parse_do_while();
 
                     case keyword_kind::break_:
                         advance();

@@ -158,6 +158,7 @@ namespace og::gs2::ast {
     struct function_stmt;
     struct switch_stmt;
     struct enum_stmt;
+    struct do_while_stmt;
 
     using stmt = std::variant<
         std::unique_ptr<block_stmt>,
@@ -172,7 +173,8 @@ namespace og::gs2::ast {
         std::unique_ptr<continue_stmt>,
         std::unique_ptr<function_stmt>,
         std::unique_ptr<switch_stmt>,
-        std::unique_ptr<enum_stmt>>;
+        std::unique_ptr<enum_stmt>,
+        std::unique_ptr<do_while_stmt>>;
 
     using stmt_list = std::vector<stmt>;
 
@@ -263,6 +265,12 @@ namespace og::gs2::ast {
 
         std::optional<std::string> name;
         std::vector<entry> entries;
+        source_position position;
+    };
+
+    struct do_while_stmt {
+        stmt body;
+        expr condition;
         source_position position;
     };
 

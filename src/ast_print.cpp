@@ -223,6 +223,12 @@ namespace og::gs2::ast {
                 }
             }
 
+            void operator()(const unique_ptr<do_while_stmt> &st) {
+                node("DoWhile");
+                property("condition", st->condition);
+                property("body", st->body, true);
+            }
+
           private:
             class child_scope {
                 printer_impl &printer_;
