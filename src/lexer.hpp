@@ -57,7 +57,8 @@ namespace og::gs2 {
         op_assign_modulo,   // %=
         op_assign_concat,   // @=
         op_increment,       // ++
-        op_decrement,       // --
+        op_decrement,       // --,
+        op_scope,           // ::
     };
 
     auto token_kind_string(token_kind kind) -> std::string_view;

@@ -368,7 +368,14 @@ namespace og::gs2 {
 
                 case ',': kind = token_kind::comma; break;
                 case '?': kind = token_kind::question; break;
-                case ':': kind = token_kind::colon; break;
+
+                case ':':
+                    if (match_next(':', token_kind::op_scope)) {
+                        break;
+                    }
+                    kind = token_kind::colon;
+                    break;
+
                 case ';': kind = token_kind::semicolon; break;
                 case '{': kind = token_kind::lbrace; break;
                 case '}': kind = token_kind::rbrace; break;
@@ -504,6 +511,7 @@ namespace og::gs2 {
         case token_kind::op_assign_concat:   return "op_assign_concat";
         case token_kind::op_increment:       return "op_increment";
         case token_kind::op_decrement:       return "op_decrement";
+        case token_kind::op_scope:           return "op_scope";
         default:                             return "unknown";
         }
     }

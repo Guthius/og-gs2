@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "ast.hpp"
 
 namespace og::gs2 {
     using namespace std;
@@ -506,6 +507,21 @@ namespace og::gs2 {
                 return parse_postfix();
             }
 
+            auto parse_call_args() -> expected_expr_list {
+                advance();
+
+                auto args = parse_expr_list();
+                if (!args) {
+                    return unexpected(args.error());
+                }
+
+                if (auto match = expect(token_kind::rparen, "expected ')' after arguments"); !match) {
+                    return unexpected(match.error());
+                }
+
+                return args;
+            }
+
             auto parse_postfix() -> expected_expr {
                 auto left = parse_primary();
                 if (!left) {
@@ -515,7 +531,20 @@ namespace og::gs2 {
                 while (true) {
                     auto position = peek().position;
 
-                    if (check(token_kind::dot)) {
+                    if (check(token_kind::op_scope)) {
+                        advance();
+
+                        auto member = parse_primary();
+                        if (!member) {
+                            return unexpected(member.error());
+                        }
+
+                        left = make_node(ast::scope_member_expr{
+                            .scope = std::move(*left),
+                            .member = std::move(*member),
+                            .position = position,
+                        });
+                    } else if (check(token_kind::dot)) {
                         advance();
 
                         auto member = parse_primary();
@@ -546,15 +575,9 @@ namespace og::gs2 {
                             .position = position,
                         });
                     } else if (check(token_kind::lparen)) {
-                        advance();
-
-                        auto args = parse_expr_list();
+                        auto args = parse_call_args();
                         if (!args) {
                             return unexpected(args.error());
-                        }
-
-                        if (auto match = expect(token_kind::rparen, "expected ')' after arguments"); !match) {
-                            return unexpected(match.error());
                         }
 
                         left = make_node(ast::call_expr{

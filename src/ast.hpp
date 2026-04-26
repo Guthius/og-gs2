@@ -22,6 +22,7 @@ namespace og::gs2::ast {
     struct new_expr;
     struct range_expr;
     struct in_expr;
+    struct scope_member_expr;
 
     using expr = std::variant<
         std::unique_ptr<number_expr>,
@@ -39,7 +40,8 @@ namespace og::gs2::ast {
         std::unique_ptr<assign_expr>,
         std::unique_ptr<new_expr>,
         std::unique_ptr<range_expr>,
-        std::unique_ptr<in_expr>>;
+        std::unique_ptr<in_expr>,
+        std::unique_ptr<scope_member_expr>>;
 
     using expr_list = std::vector<expr>;
 
@@ -134,6 +136,12 @@ namespace og::gs2::ast {
     struct in_expr {
         expr value;
         expr range;
+        source_position position;
+    };
+
+    struct scope_member_expr {
+        expr scope;
+        expr member;
         source_position position;
     };
 

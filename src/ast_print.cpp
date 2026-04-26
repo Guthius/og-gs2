@@ -108,6 +108,12 @@ namespace og::gs2::ast {
                 property("range", ex->range, true);
             }
 
+            void operator()(const unique_ptr<scope_member_expr> &ex) {
+                node("ScopeMember");
+                property("scope", ex->scope);
+                property("member", ex->member, true);
+            }
+
             void operator()(const unique_ptr<block_stmt> &st) {
                 node(format("Block ({} stmts)", st->body.size()));
                 print_stmt_list(st->body);
