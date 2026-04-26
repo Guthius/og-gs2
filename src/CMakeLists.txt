@@ -3,6 +3,7 @@ add_library(gs2lib
   lexer.cpp
   main.cpp
   parser.cpp
+  script.cpp
 )
 
 add_executable(gs2

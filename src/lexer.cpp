@@ -87,9 +87,9 @@ namespace og::gs2 {
                 .column = 1,
             };
 
-            ifstream &stream;
+            istream &stream;
 
-            explicit lexer(ifstream &stream) : stream(stream) {
+            explicit lexer(istream &stream) : stream(stream) {
             }
 
             auto eof() -> bool { return stream.eof(); }
@@ -517,11 +517,11 @@ namespace og::gs2 {
         }
     }
 
-    auto tokenize(ifstream &ifs) -> tokenize_result {
-        if (!ifs.is_open()) {
+    auto tokenize(istream &is) -> tokenize_result {
+        if (!is) {
             return unexpected((lexer_error){
                 .kind = lexer_error_kind::bad_stream,
-                .message = "the stream is closed",
+                .message = "unable to read from stream",
             });
         }
 
@@ -529,7 +529,7 @@ namespace og::gs2 {
 
         result.reserve(reserved_token_vector_size);
 
-        lexer lexer(ifs);
+        lexer lexer(is);
         while (true) {
             auto token = lexer.next_token();
             if (token.kind == token_kind::eof) {
@@ -553,8 +553,8 @@ namespace og::gs2 {
         return result;
     }
 
-    void print_tokens(ifstream &ifs) {
-        auto result = og::gs2::tokenize(ifs);
+    void print_tokens(istream &is) {
+        auto result = og::gs2::tokenize(is);
         if (result.has_value()) {
             println("{:>5} |{:>5} | {:<20}| {}", "Line", "Col", "Type", "Lexeme");
             println("------+------+---------------------+---------------------");

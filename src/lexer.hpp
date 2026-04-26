@@ -1,7 +1,7 @@
 #pragma once
 
 #include <expected>
-#include <fstream>
+#include <istream>
 #include <vector>
 
 namespace og::gs2 {
@@ -108,6 +108,6 @@ namespace og::gs2 {
     using tokens = std::vector<token>;
     using tokenize_result = std::expected<tokens, lexer_error>;
 
-    auto tokenize(std::ifstream &ifs) -> tokenize_result;
-    void print_tokens(std::ifstream &ifs);
+    auto tokenize(std::istream &is) -> tokenize_result;
+    void print_tokens(std::istream &is);
 }

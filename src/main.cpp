@@ -1,6 +1,8 @@
 #include "parser.hpp"
+#include "script.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <print>
 
@@ -43,5 +45,15 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     og::gs2::ast::print(cout, *stmt);
+
+    auto script = og::gs2::compile(path);
+    if (!script) {
+        println(cerr, "Error: {} on line {}, column {}",
+                stmt.error().message,
+                stmt.error().position.line,
+                stmt.error().position.column);
+        return 1;
+    }
+
     return 0;
 }

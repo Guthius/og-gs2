@@ -1,6 +1,7 @@
 #include "../src/parser.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <print>
 
