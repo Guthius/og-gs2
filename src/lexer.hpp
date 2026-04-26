@@ -1,17 +1,13 @@
 #pragma once
 
+#include "error.hpp"
+
 #include <expected>
 #include <istream>
 #include <vector>
 
 namespace og::gs2 {
-    using byte = uint8_t;
-
-    struct source_position {
-        int line, column;
-    };
-
-    enum class token_kind : byte {
+    enum class token_kind : uint8_t {
         eof,
         keyword,
         identifier,
@@ -63,7 +59,7 @@ namespace og::gs2 {
 
     auto token_kind_string(token_kind kind) -> std::string_view;
 
-    enum class keyword_kind : byte {
+    enum class keyword_kind : uint8_t {
         unknown,
         if_,
         else_,
@@ -94,19 +90,8 @@ namespace og::gs2 {
         double value;
     };
 
-    enum class lexer_error_kind : byte {
-        bad_stream,
-        bad_token
-    };
-
-    struct lexer_error {
-        lexer_error_kind kind;
-        std::string message;
-        source_position position;
-    };
-
     using tokens = std::vector<token>;
-    using tokenize_result = std::expected<tokens, lexer_error>;
+    using tokenize_result = std::expected<tokens, error>;
 
     auto tokenize(std::istream &is) -> tokenize_result;
     void print_tokens(std::istream &is);

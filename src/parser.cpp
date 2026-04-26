@@ -10,19 +10,22 @@ namespace og::gs2 {
         }
 
         struct parser_impl {
-            using expected_expr = expected<ast::expr, parse_error>;
-            using expected_expr_list = expected<ast::expr_list, parse_error>;
-            using expected_block_stmt = expected<ast::block_stmt, parse_error>;
-            using expected_stmt = expected<ast::stmt, parse_error>;
-            using expected_string = expected<string, parse_error>;
-            using expected_switch_stmt_item = expected<ast::switch_stmt::item, parse_error>;
+            using expected_expr = expected<ast::expr, error>;
+            using expected_expr_list = expected<ast::expr_list, error>;
+            using expected_block_stmt = expected<ast::block_stmt, error>;
+            using expected_stmt = expected<ast::stmt, error>;
+            using expected_string = expected<string, error>;
+            using expected_switch_stmt_item = expected<ast::switch_stmt::item, error>;
+            using expected_token = expected<token, error>;
 
             tokens &tokens;
             size_t pos = 0;
 
             [[nodiscard]]
-            auto make_error(string message) const -> parse_error {
-                return parse_error{
+            auto make_error(string message) const -> error {
+                return error{
+                    .source = error_source::parser,
+                    .kind = error_kind::syntax_error,
                     .message = std::move(message),
                     .position = peek().position,
                 };
@@ -72,10 +75,12 @@ namespace og::gs2 {
                 }
             }
 
-            auto expect(token_kind kind, string_view message) -> expected<token, parse_error> {
+            auto expect(token_kind kind, string_view message) -> expected_token {
                 if (!check(kind)) {
                     const auto &token = peek();
-                    return unexpected(parse_error{
+                    return unexpected(error{
+                        .source = error_source::parser,
+                        .kind = error_kind::syntax_error,
                         .message = format("{} (got '{}')", message, token.lexeme),
                         .position = token.position,
                     });
@@ -83,10 +88,12 @@ namespace og::gs2 {
                 return advance();
             }
 
-            auto expect_keyword(keyword_kind kind, string_view message) -> expected<token, parse_error> {
+            auto expect_keyword(keyword_kind kind, string_view message) -> expected_token {
                 if (!check_keyword(kind)) {
                     const auto &token = peek();
-                    return unexpected(parse_error{
+                    return unexpected(error{
+                        .source = error_source::parser,
+                        .kind = error_kind::syntax_error,
                         .message = format("{} (got '{}')", message, token.lexeme),
                         .position = token.position,
                     });
@@ -94,7 +101,7 @@ namespace og::gs2 {
                 return advance();
             }
 
-            auto expect_identifier(string_view message) -> expected<token, parse_error> {
+            auto expect_identifier(string_view message) -> expected_token {
                 return expect(token_kind::identifier, message);
             }
 

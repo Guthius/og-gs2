@@ -1,5 +1,6 @@
 #include "script.hpp"
 
+#include "error.hpp"
 #include "parser.hpp"
 #include "registry.hpp"
 
@@ -50,10 +51,7 @@ namespace og::gs2 {
     auto load_script(const tokens &tokens) -> script_result {
         auto stmt = parse(tokens);
         if (!stmt) {
-            return unexpected(script_error{
-                .message = stmt.error().message,
-                .position = stmt.error().position,
-            });
+            return unexpected(stmt.error());
         }
 
         return make_shared<script_impl>(std::move(*stmt));
@@ -62,10 +60,7 @@ namespace og::gs2 {
     auto load_script(istream &is) -> script_result {
         auto tokens = tokenize(is);
         if (!tokens) {
-            return unexpected(script_error{
-                .message = tokens.error().message,
-                .position = tokens.error().position,
-            });
+            return unexpected(tokens.error());
         }
 
         return load_script(*tokens);
@@ -73,20 +68,26 @@ namespace og::gs2 {
 
     auto compile(const filesystem::path &path) -> script_result {
         if (!filesystem::exists(path)) {
-            return unexpected(script_error{
+            return unexpected(error{
+                .source = error_source::interpreter,
+                .kind = error_kind::file_error,
                 .message = format("file '{}' does not exist", path.string()),
             });
         }
 
         if (!filesystem::is_regular_file(path)) {
-            return unexpected(script_error{
+            return unexpected(error{
+                .source = error_source::interpreter,
+                .kind = error_kind::file_error,
                 .message = format("'{}' is not a file", path.string()),
             });
         }
 
         ifstream ifs(path, ios::in);
         if (!ifs.is_open()) {
-            return unexpected(script_error{
+            return unexpected(error{
+                .source = error_source::interpreter,
+                .kind = error_kind::file_error,
                 .message = format("error opening '{}'", path.string()),
             });
         }

@@ -7,11 +7,6 @@
 #include <memory>
 
 namespace og::gs2 {
-    struct script_error {
-        std::string message;
-        source_position position;
-    };
-
     struct script {
         virtual ~script() = default;
 
@@ -20,7 +15,7 @@ namespace og::gs2 {
     };
 
     using script_ptr = std::shared_ptr<script>;
-    using script_result = std::expected<script_ptr, script_error>;
+    using script_result = std::expected<script_ptr, error>;
 
     auto load_script(const tokens &tokens) -> script_result;
     auto load_script(std::istream &is) -> script_result;

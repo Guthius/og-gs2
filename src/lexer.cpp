@@ -519,8 +519,9 @@ namespace og::gs2 {
 
     auto tokenize(istream &is) -> tokenize_result {
         if (!is) {
-            return unexpected((lexer_error){
-                .kind = lexer_error_kind::bad_stream,
+            return unexpected((error){
+                .source = error_source::lexer,
+                .kind = error_kind::stream_error,
                 .message = "unable to read from stream",
             });
         }
@@ -537,8 +538,9 @@ namespace og::gs2 {
             }
 
             if (token.kind == token_kind::invalid) {
-                return unexpected((lexer_error){
-                    .kind = lexer_error_kind::bad_token,
+                return unexpected((error){
+                    .source = error_source::lexer,
+                    .kind = error_kind::token_error,
                     .message = format(
                         "invalid token",
                         token.position.line,
