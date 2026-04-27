@@ -545,7 +545,7 @@ namespace og::gs2 {
                             return unexpected(member.error());
                         }
 
-                        left = make_node(ast::scope_member_expr{
+                        left = make_node(ast::scope_resolution_expr{
                             .scope = std::move(*left),
                             .member = std::move(*member),
                             .position = position,

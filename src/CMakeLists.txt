@@ -1,9 +1,11 @@
 add_library(gs2lib
   ast_print.cpp
+  eval_expr.cpp
   lexer.cpp
   main.cpp
   parser.cpp
   script.cpp
+  value.cpp
 )
 
 add_executable(gs2

@@ -22,8 +22,12 @@ namespace og::gs2 {
                 detect_functions(root);
             }
 
-            auto has_function(string_view name) const -> bool {
+            auto has_function(string_view name) const -> bool override {
                 return functions.contains(name);
+            }
+
+            auto call(string_view function_name, dictionary_ptr context, const values &args = {}) const -> expected_value override {
+                // TODO: Implement me...
             }
 
             void detect_functions(const ast::stmt &stmt) {

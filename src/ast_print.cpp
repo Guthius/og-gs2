@@ -108,7 +108,7 @@ namespace og::gs2::ast {
                 property("range", ex->range, true);
             }
 
-            void operator()(const unique_ptr<scope_member_expr> &ex) {
+            void operator()(const unique_ptr<scope_resolution_expr> &ex) {
                 node("ScopeMember");
                 property("scope", ex->scope);
                 property("member", ex->member, true);

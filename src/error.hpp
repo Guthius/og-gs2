@@ -26,6 +26,7 @@ namespace og::gs2 {
         token_error,
         syntax_error,
         file_error,
+        runtime_error,
     };
 
     struct error {
