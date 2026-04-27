@@ -10,12 +10,10 @@
 namespace og::gs2 {
     struct array;
     struct dictionary;
-    struct object;
     struct callable;
 
     using array_ptr = std::shared_ptr<array>;
     using dictionary_ptr = std::shared_ptr<dictionary>;
-    using object_ptr = std::shared_ptr<object>;
     using callable_ptr = std::shared_ptr<callable>;
 
     using value = std::variant<std::monostate, double, std::string, array_ptr, dictionary_ptr, callable_ptr>;
@@ -40,17 +38,8 @@ namespace og::gs2 {
         virtual auto erase(std::string_view name) -> bool = 0;
     };
 
-    struct object : dictionary {
-        [[nodiscard]]
-        virtual auto type_name() const -> std::string_view = 0;
-
-        [[nodiscard]]
-        virtual auto is_a(std::string_view name) const -> bool = 0;
-    };
-
     using expected_void = std::expected<void, error>;
     using expected_dictionary = std::expected<dictionary_ptr, error>;
-    using expected_object = std::expected<object_ptr, error>;
     using expected_value = std::expected<value, error>;
 
     struct callable {
