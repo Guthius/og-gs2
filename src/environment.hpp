@@ -3,6 +3,8 @@
 #include "registry.hpp"
 #include "value.hpp"
 
+#include <functional>
+
 namespace og::gs2 {
     class basic_dictionary : public dictionary {
       public:
@@ -15,6 +17,12 @@ namespace og::gs2 {
         registry<value> fields_;
     };
 
+    class environment;
+
+    using native_function = std::function<expected_value(environment &env, const values &args)>;
+
     class environment : public basic_dictionary {
+      public:
+        void bind(std::string_view name, const native_function &function);
     };
 }

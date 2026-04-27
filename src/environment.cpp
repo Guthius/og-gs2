@@ -28,4 +28,22 @@ namespace og::gs2 {
         fields_.erase(iter);
         return true;
     }
+
+    namespace {
+        struct callable_impl : callable {
+            environment &env;
+            const native_function &function;
+
+            callable_impl(environment &env, const native_function &function) : env(env), function(function) {
+            }
+
+            auto invoke(const values &args) -> expected_value override {
+                return function(env, args);
+            }
+        };
+    }
+
+    void environment::bind(std::string_view name, const native_function &function) {
+        put(name, std::make_shared<callable_impl>(*this, function));
+    }
 }
