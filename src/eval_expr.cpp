@@ -19,13 +19,8 @@ namespace og::gs2 {
         auto resolve_identifier(context &context, const unique_ptr<ast::identifier_expr> &expr) -> expected_lvalue {
             const auto &name = expr->name;
 
-            auto dictionary = context.get_scope(name);
-            if (!dictionary) {
-                return unexpected(dictionary.error());
-            }
-
             return member_ref{
-                .dictionary = *dictionary,
+                .dictionary = context.get_dictionary(),
                 .key = name,
             };
         }

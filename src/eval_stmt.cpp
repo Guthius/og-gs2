@@ -297,12 +297,12 @@ namespace og::gs2 {
         auto eval_enum(context &context, state &state, const unique_ptr<ast::enum_stmt> &stmt) -> expected_void {
             auto dictionary = [&]() -> dictionary_ptr {
                 if (!stmt->name) {
-                    return context.get_scope();
+                    return context.get_dictionary();
                 }
 
                 const auto new_dictionary = make_shared<basic_dictionary>();
 
-                context.get_scope()->put(*stmt->name, new_dictionary);
+                context.get_dictionary()->put(*stmt->name, new_dictionary);
 
                 return new_dictionary;
             }();
@@ -399,11 +399,11 @@ namespace og::gs2 {
             temp->put(fn.params[i], i < args.size() ? args[i] : value{});
         }
 
-        context.get_scope()->put("temp", temp);
+        context.get_dictionary()->put("temp", temp);
 
         auto result = eval(context, exec_state, fn.body);
 
-        context.get_scope()->erase("temp");
+        context.get_dictionary()->erase("temp");
 
         if (!result) {
             return unexpected(result.error());
