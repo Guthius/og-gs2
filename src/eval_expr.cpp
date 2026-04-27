@@ -257,7 +257,7 @@ namespace og::gs2 {
         return unexpected(error{
             .source = error_source::interpreter,
             .kind = error_kind::runtime_error,
-            .message = format("'{}' is not callable", to_string(*callee)),
+            .message = format("expression '{}' is not callable", to_string(expr->callee)),
             .position = expr->position,
         });
     }

@@ -275,4 +275,7 @@ namespace og::gs2::ast {
     };
 
     void print(std::ostream &os, const stmt &stmt);
+    auto to_string(const ast::expr &expr) -> std::string;
+
+    auto operator<<(std::ostream &os, const ast::expr &expr) -> std::ostream &;
 }

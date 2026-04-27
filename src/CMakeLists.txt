@@ -1,5 +1,6 @@
 add_library(gs2lib
   ast_print.cpp
+  ast_string.cpp
   context.cpp
   environment.cpp
   eval_expr.cpp
