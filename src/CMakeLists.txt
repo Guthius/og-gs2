@@ -11,12 +11,9 @@ add_library(gs2lib
   value.cpp
 )
 
-add_executable(gs2
-  ast_print.cpp
-  lexer.cpp
-  main.cpp
-  parser.cpp
-)
+target_include_directories(gs2lib INTERFACE .)
+
+add_executable(gs2 main.cpp)
 
 target_link_libraries(
   gs2 PRIVATE gs2lib
