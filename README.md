@@ -51,8 +51,7 @@ just build
 ### 4. Run a script
 
 ```sh
-just run path/to/script.gs2
+just run examples/01_hello_world.gs2
 ```
 
-**Note**: At the moment the interpreter is not implemented. Running a script
-will only output it's AST.
+This will output a hello world message.
