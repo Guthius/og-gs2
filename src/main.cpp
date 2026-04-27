@@ -1,3 +1,6 @@
+#include "ast.hpp"
+#include "context.hpp"
+#include "eval.hpp"
 #include "parser.hpp"
 #include "script.hpp"
 
@@ -46,7 +49,8 @@ auto main(int argc, char *argv[]) -> int {
 
     og::gs2::ast::print(cout, *stmt);
 
-    auto script = og::gs2::compile(path);
+    auto env = og::gs2::environment();
+    auto script = og::gs2::compile(env, path);
     if (!script) {
         println(cerr, "Error: {} on line {}, column {}",
                 stmt.error().message,

@@ -1,8 +1,7 @@
 #include "script.hpp"
 
-#include "error.hpp"
+#include "context.hpp"
 #include "parser.hpp"
-#include "registry.hpp"
 
 #include <filesystem>
 #include <format>
@@ -15,10 +14,11 @@ namespace og::gs2 {
         struct script_impl : script {
             using function_stmt_ptr = const ast::function_stmt *;
 
+            environment &env;
             ast::stmt root;
             registry<function_stmt_ptr> functions;
 
-            script_impl(ast::stmt stmt) : root(std::move(stmt)) {
+            script_impl(environment &env, ast::stmt stmt) : env(env), root(std::move(stmt)) {
                 detect_functions(root);
             }
 
@@ -26,8 +26,12 @@ namespace og::gs2 {
                 return functions.contains(name);
             }
 
-            auto call(string_view function_name, dictionary_ptr context, const values &args = {}) const -> expected_value override {
-                // TODO: Implement me...
+            auto call(string_view function_name, dictionary_ptr self, const values &args = {}) const -> expected_value override {
+                auto ctx = context(env, std::move(self));
+
+                // TODO: Implement
+
+                return {};
             }
 
             void detect_functions(const ast::stmt &stmt) {
@@ -52,25 +56,25 @@ namespace og::gs2 {
         };
     }
 
-    auto load_script(const tokens &tokens) -> script_result {
+    auto load_script(environment &env, const tokens &tokens) -> script_result {
         auto stmt = parse(tokens);
         if (!stmt) {
             return unexpected(stmt.error());
         }
 
-        return make_shared<script_impl>(std::move(*stmt));
+        return make_shared<script_impl>(env, std::move(*stmt));
     }
 
-    auto load_script(istream &is) -> script_result {
+    auto load_script(environment &env, istream &is) -> script_result {
         auto tokens = tokenize(is);
         if (!tokens) {
             return unexpected(tokens.error());
         }
 
-        return load_script(*tokens);
+        return load_script(env, *tokens);
     }
 
-    auto compile(const filesystem::path &path) -> script_result {
+    auto compile(environment &env, const filesystem::path &path) -> script_result {
         if (!filesystem::exists(path)) {
             return unexpected(error{
                 .source = error_source::interpreter,
@@ -96,6 +100,6 @@ namespace og::gs2 {
             });
         }
 
-        return load_script(ifs);
+        return load_script(env, ifs);
     }
 }
