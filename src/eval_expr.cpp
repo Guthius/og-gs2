@@ -44,13 +44,26 @@ namespace og::gs2 {
             };
         }
 
+        auto resolve_member_key(context &context, const ast::expr &expr) -> expected<string, error> {
+            if (const auto *identifier = get_if<unique_ptr<ast::identifier_expr>>(&expr)) {
+                return (*identifier)->name;
+            }
+
+            auto member = eval(context, expr);
+            if (!member) {
+                return unexpected(member.error());
+            }
+
+            return to_string(*member);
+        }
+
         auto resolve_member(context &context, const unique_ptr<ast::member_expr> &expr) -> expected_lvalue {
             auto object = eval(context, expr->object);
             if (!object) {
                 return unexpected(object.error());
             }
 
-            auto key = eval(context, expr->member);
+            auto key = resolve_member_key(context, expr->member);
             if (!key) {
                 return unexpected(key.error());
             }
@@ -58,7 +71,7 @@ namespace og::gs2 {
             if (auto *dictionary = get_if<dictionary_ptr>(&*object)) {
                 return member_ref{
                     .dictionary = *dictionary,
-                    .key = to_string(*key),
+                    .key = std::move(*key),
                 };
             }
 
@@ -183,16 +196,14 @@ namespace og::gs2 {
                 return object;
             }
 
-            auto member = eval(context, expr->member);
-            if (!member) {
-                return member;
+            auto key = resolve_member_key(context, expr->member);
+            if (!key) {
+                return unexpected(key.error());
             }
 
-            auto member_str = to_string(*member);
-
             if (auto *dict = get_if<dictionary_ptr>(&*object)) {
-                if ((*dict)->contains(member_str)) {
-                    return (*dict)->get(member_str);
+                if ((*dict)->contains(*key)) {
+                    return (*dict)->get(*key);
                 }
 
                 return null_value;
