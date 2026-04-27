@@ -9,6 +9,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 
 add_executable(tests
+  test_eval_call_expr.cpp
   test_eval_literals.cpp
 )
 

@@ -1,17 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "ast.hpp"
-#include "eval.hpp"
+#include "utils.hpp"
 
 using namespace std;
 using namespace og::gs2;
 
 namespace {
-    template <typename T>
-    constexpr auto make_expr(T value) -> ast::expr {
-        return make_unique<T>(std::move(value));
-    }
-
     auto evaluate(const ast::expr &expr) -> expected_value {
         auto self = make_shared<basic_dictionary>();
 
@@ -19,19 +13,6 @@ namespace {
         auto text_context = context(test_environment, self);
 
         return eval(text_context, expr);
-    }
-
-    template <typename T>
-    auto has_value(const expected_value &result, const T &expected_value) -> bool {
-        if (!result.has_value()) {
-            return false;
-        }
-
-        if (auto *value = get_if<T>(&*result)) {
-            return (*value) == expected_value;
-        }
-
-        return false;
     }
 }
 
