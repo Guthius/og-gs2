@@ -1,6 +1,8 @@
 #include "script.hpp"
 
+#include "ast.hpp"
 #include "context.hpp"
+#include "eval.hpp"
 #include "parser.hpp"
 
 #include <filesystem>
@@ -26,12 +28,24 @@ namespace og::gs2 {
                 return functions.contains(name);
             }
 
-            auto call(string_view function_name, dictionary_ptr self, const values &args = {}) const -> expected_value override {
+            auto get_function(string_view name) const -> function_stmt_ptr {
+                auto iter = functions.find(name);
+                if (iter == functions.end()) {
+                    return nullptr;
+                }
+
+                return iter->second;
+            }
+
+            auto call(string_view function_name, dictionary_ptr self, const values &args = {}) -> expected_value override {
                 auto ctx = context(env, std::move(self));
 
-                // TODO: Implement
+                const auto *function_ptr = get_function(function_name);
+                if (function_ptr == nullptr) {
+                    return {};
+                }
 
-                return {};
+                return eval(ctx, *function_ptr, args);
             }
 
             void detect_functions(const ast::stmt &stmt) {

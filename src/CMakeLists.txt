@@ -4,6 +4,7 @@ add_library(gs2lib
   context.cpp
   environment.cpp
   eval_expr.cpp
+  eval_stmt.cpp
   lexer.cpp
   main.cpp
   parser.cpp

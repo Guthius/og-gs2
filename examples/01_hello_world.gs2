@@ -1,0 +1,5 @@
+function onCreated() {
+    temp.world = "World!"
+
+    print("Hello" SPC temp.world @ "\n");
+}

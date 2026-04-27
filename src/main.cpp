@@ -1,9 +1,8 @@
-#include "ast.hpp"
-#include "parser.hpp"
+#include "environment.hpp"
 #include "script.hpp"
+#include "value.hpp"
 
 #include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <print>
 
@@ -21,39 +20,32 @@ auto main(int argc, char *argv[]) -> int {
         return 1;
     }
 
-    ifstream ifs(path, ios::in);
-    if (!ifs.is_open()) {
-        println(cerr, "Failed to open: {}", path.string());
-        return 1;
-    }
+    auto script_scope = make_shared<og::gs2::basic_dictionary>();
+    auto script_env = og::gs2::environment();
+    auto script = og::gs2::compile(script_env, path);
 
-    auto tokens = og::gs2::tokenize(ifs);
-    if (!tokens) {
-        println(cerr, "Error: {} on line {}, column {}",
-                tokens.error().message,
-                tokens.error().position.line,
-                tokens.error().position.column);
-        return 1;
-    }
-
-    auto stmt = og::gs2::parse(*tokens);
-    if (!stmt) {
-        println(cerr, "Error: {} on line {}, column {}",
-                stmt.error().message,
-                stmt.error().position.line,
-                stmt.error().position.column);
-        return 1;
-    }
-
-    og::gs2::ast::print(cout, *stmt);
-
-    auto env = og::gs2::environment();
-    auto script = og::gs2::compile(env, path);
     if (!script) {
         println(cerr, "Error: {} on line {}, column {}",
-                stmt.error().message,
-                stmt.error().position.line,
-                stmt.error().position.column);
+                script.error().message,
+                script.error().position.line,
+                script.error().position.column);
+        return 1;
+    }
+
+    script_env.bind("print", [](auto &env, const auto &args) -> og::gs2::expected_value {
+        for (const auto &arg : args) {
+            cout << og::gs2::to_string(arg);
+        }
+
+        return {};
+    });
+
+    auto result = (*script)->call("onCreated", script_scope);
+    if (!result) {
+        println(cerr, "Error: {} on line {}, column {}",
+                result.error().message,
+                result.error().position.line,
+                result.error().position.column);
         return 1;
     }
 

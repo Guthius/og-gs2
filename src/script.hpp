@@ -16,7 +16,7 @@ namespace og::gs2 {
         virtual auto has_function(std::string_view name) const -> bool = 0;
 
         [[nodiscard]]
-        virtual auto call(std::string_view function_name, dictionary_ptr self, const values &args = {}) const -> expected_value = 0;
+        virtual auto call(std::string_view function_name, dictionary_ptr self, const values &args = {}) -> expected_value = 0;
     };
 
     using script_ptr = std::shared_ptr<script>;

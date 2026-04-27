@@ -1,6 +1,6 @@
 #include "value.hpp"
 
-#include <format>
+#include <sstream>
 
 using namespace std;
 
@@ -38,7 +38,9 @@ namespace og::gs2 {
                 }
 
                 if constexpr (is_same_v<T, double>) {
-                    return format("{}", current);
+                    ostringstream oss;
+                    oss << current;
+                    return oss.str();
                 }
 
                 if constexpr (is_same_v<T, string>) {
