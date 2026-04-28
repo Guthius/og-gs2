@@ -22,7 +22,8 @@ NamespaceIndentation: All
 FixNamespaceComments: false
 SortIncludes: true
 IncludeCategories:
-  - Regex: '^<.*>'
+  - Regex: "^<.*>"
     Priority: 1
   - Regex: '^".*"'
     Priority: 2
+AllowShortIfStatementsOnASingleLine: true

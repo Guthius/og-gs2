@@ -3,7 +3,8 @@ Checks: >
   readability-*,
   performance-*,
   bugprone-*,
-  clang-analyzer-*
+  clang-analyzer-*,
+  -readability-braces-around-statements
 WarningsAsErrors: true
 CheckOptions:
   - key: readability-identifier-length.MinimumVariableNameLength
