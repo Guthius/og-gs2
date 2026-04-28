@@ -1,5 +1,6 @@
 function onCreated() {
-    temp.world = "World!"
+    temp.world_var = "world";
+    temp.world = "World!";
 
-    print("Hello" SPC temp.world @ "\n");
+    print("Hello" SPC temp.(temp.world_var) @ "\n");
 }
