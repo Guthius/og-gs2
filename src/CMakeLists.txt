@@ -5,6 +5,7 @@ add_library(gs2lib
   eval.cpp
   lexer.cpp
   parser.cpp
+  prototype.cpp
   script.cpp
   value.cpp
 )

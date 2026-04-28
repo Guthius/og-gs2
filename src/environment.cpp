@@ -1,4 +1,5 @@
 #include <gs2/environment.hpp>
+#include "gs2/prototype.hpp"
 
 using namespace std;
 
@@ -43,7 +44,20 @@ namespace og::gs2 {
         };
     }
 
-    void environment::bind(std::string_view name, const native_function &function) {
+    void environment::register_function(std::string_view name, const native_function &function) {
         put(name, std::make_shared<callable_impl>(*this, function));
+    }
+
+    void environment::register_type(prototype_ptr prototype) {
+        types_[prototype->name] = std::move(prototype);
+    }
+
+    auto environment::find_type(std::string_view type_name) -> prototype_ptr {
+        auto iter = types_.find(type_name);
+        if (iter == types_.end()) {
+            return nullptr;
+        }
+
+        return iter->second;
     }
 }

@@ -77,7 +77,7 @@ TEST_CASE("Evaluating call expressions invokes callables with arguments") {
     auto test_environment = environment();
     auto text_context = context(test_environment, self);
 
-    test_environment.bind(
+    test_environment.register_function(
         "test_func",
         [](auto &env, const auto &args) -> expected_value {
             REQUIRE((args.size() == 2));

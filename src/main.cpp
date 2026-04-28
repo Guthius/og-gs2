@@ -32,7 +32,7 @@ auto main(int argc, char *argv[]) -> int {
         return 1;
     }
 
-    script_env.bind("print", [](auto &env, const auto &args) -> og::gs2::expected_value {
+    script_env.register_function("print", [](auto &env, const auto &args) -> og::gs2::expected_value {
         for (const auto &arg : args) {
             cout << og::gs2::to_string(arg);
         }
