@@ -228,7 +228,7 @@ namespace og::gs2::ast {
             }
 
             void operator()(const unique_ptr<new_expr> &ex) {
-                auto has_body = ex->body.size() > 0;
+                auto has_body = !ex->body.empty();
 
                 node(format("New ({} args{})", ex->args.size(), has_body ? " with body" : ""));
                 property("type", ex->object_name, ex->args.empty() && !has_body);

@@ -34,3 +34,10 @@ test: build
 
 # Rebuild the server from scratch
 rebuild: clean build
+
+# Format all source files that are part of the project
+format:
+    find ./src -type f \( -name '*.cpp' \) \
+        -print0 | xargs -0 clang-format -i
+    find ./include -type f \( -name '*.hpp' \) \
+        -print0 | xargs -0 clang-format -i
