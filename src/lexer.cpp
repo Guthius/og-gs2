@@ -1,4 +1,4 @@
-#include "lexer.hpp"
+#include <gs2/lexer.hpp>
 
 #include <array>
 #include <cstdlib>

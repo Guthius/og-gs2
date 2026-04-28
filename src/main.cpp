@@ -1,6 +1,6 @@
-#include "environment.hpp"
-#include "script.hpp"
-#include "value.hpp"
+#include <gs2/environment.hpp>
+#include <gs2/script.hpp>
+#include <gs2/value.hpp>
 
 #include <filesystem>
 #include <iostream>

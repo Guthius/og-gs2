@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "ast.hpp"
 #include "utils.hpp"
-#include "value.hpp"
+
+#include <gs2/value.hpp>
 
 using namespace std;
 using namespace og::gs2;

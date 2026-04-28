@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ast.hpp"
-#include "eval.hpp"
+#include <gs2/ast.hpp>
+#include <gs2/eval.hpp>
 
 template <typename T>
 constexpr auto make_expr(T value) -> og::gs2::ast::expr {

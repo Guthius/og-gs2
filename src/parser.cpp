@@ -1,4 +1,4 @@
-#include "parser.hpp"
+#include <gs2/parser.hpp>
 
 namespace og::gs2 {
     using namespace std;

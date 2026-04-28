@@ -1,9 +1,9 @@
-#include "script.hpp"
+#include <gs2/script.hpp>
 
-#include "ast.hpp"
-#include "context.hpp"
-#include "eval.hpp"
-#include "parser.hpp"
+#include <gs2/ast.hpp>
+#include <gs2/context.hpp>
+#include <gs2/eval.hpp>
+#include <gs2/parser.hpp>
 
 #include <filesystem>
 #include <format>

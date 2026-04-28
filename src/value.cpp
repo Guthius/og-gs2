@@ -1,4 +1,4 @@
-#include "value.hpp"
+#include <gs2/value.hpp>
 
 #include <sstream>
 

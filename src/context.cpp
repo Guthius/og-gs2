@@ -1,4 +1,4 @@
-#include "context.hpp"
+#include <gs2/context.hpp>
 
 using namespace std;
 

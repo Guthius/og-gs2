@@ -1,4 +1,4 @@
-#include "environment.hpp"
+#include <gs2/environment.hpp>
 
 using namespace std;
 
